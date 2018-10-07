@@ -34,9 +34,9 @@ def igrf_variation(lat, lon, alt=0., year=2005):
          Z is vertical component (+ve down)
          F is total intensity
     """
-    X, Y, Z, F = caculate.igrf12syn(0, year, 1, alt, lat, lon)
+    X, Y, Z, F = calculate.igrf12syn(0, year, 1, alt, lat, lon)
     H = np.sqrt(X * X + Y * Y)
-    DX, DY, DZ, DF = caculate.igrf12syn(1, year, 1, alt, lat, lon)
+    DX, DY, DZ, DF = calculate.igrf12syn(1, year, 1, alt, lat, lon)
     DD = (60.0 * FACT * (X * DY - Y * DX)) / (H * H)
     DH = (X * DX + Y * DY) / H
     DS = (60.0 * FACT * (H * DZ - Z * DH)) / (F * F)

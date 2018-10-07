@@ -1,8 +1,8 @@
-#pyIGRF
-##What is pyIGRF?  
+# pyIGRF
+## What is pyIGRF?  
 This is a package of IGRF-12 (International Geomagnetic Reference Field) about python version.
 It don't need any Fortran compiler.
-##How to Use it?
+## How to Use it?
 You can calculate magnetic field intensity.   
 `pyIGRF.igrf_value(lat, lon, alt, date)`  
 or calculate the annual variation of magnetic filed intensity.  

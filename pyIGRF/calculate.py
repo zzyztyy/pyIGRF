@@ -78,23 +78,21 @@ def igrf12syn(isv, date, itype, alt, lat, elong):
     """
 
     p, q, cl, sl = [0.] * 105, [0.] * 105, [0.] * 13, [0.] * 13
-    # gh = loadCoeffs('src\\igrf12coeffs.txt')
 
     # set initial values
     x, y, z = 0., 0., 0.
 
     if date < 1900.0 or date > 2025.0:
         f = 1.0
-        # print('This subroutine will not work with a date of ' + str(date))
-        # print('Date must be in the range 1900.0 <= date <= 20205.0')
-        # print('On return f = 1.0, x = y = z = 0')
+        print('This subroutine will not work with a date of ' + str(date))
+        print('Date must be in the range 1900.0 <= date <= 2025.0')
+        print('On return f = 1.0, x = y = z = 0')
         return x, y, z, f
     elif date >= 2015.0:
         if date > 2020.0:
             # not adapt for the model but can calculate
-            # print('This version of the IGRF is intended for use up to 2020.0.')
+            print('This version of the IGRF is intended for use up to 2020.0.')
             print('values for ' + str(date) + ' will be computed but may be of reduced accuracy')
-        # goto .a1
         t = date - 2015.0
         tc = 1.0
         if isv == 1:

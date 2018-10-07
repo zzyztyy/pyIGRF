@@ -1,0 +1,11 @@
+setup.py
+pyIGRF/__init__.py
+pyIGRF/calculate.py
+pyIGRF/loadCoeffs.py
+pyIGRF/value.py
+pyIGRF.egg-info/PKG-INFO
+pyIGRF.egg-info/SOURCES.txt
+pyIGRF.egg-info/dependency_links.txt
+pyIGRF.egg-info/requires.txt
+pyIGRF.egg-info/top_level.txt
+pyIGRF/src/igrf12coeffs.txt

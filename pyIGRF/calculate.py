@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from loadCoeffs import gh
+from pyIGRF.loadCoeffs import gh
 
 
 FACT = 180./np.pi

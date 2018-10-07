@@ -1,6 +1,6 @@
 import numpy as np
 
-import caculate
+import pyIGRF.calculate as calculate
 
 FACT = 180./np.pi
 
@@ -16,7 +16,7 @@ def igrf_value(lat, lon, alt=0., year=2005.):
          Z is vertical component (+ve down)
          F is total intensity
     """
-    X, Y, Z, F = caculate.igrf12syn(0, year, 1, alt, lat, lon)
+    X, Y, Z, F = calculate.igrf12syn(0, year, 1, alt, lat, lon)
     D = FACT * np.arctan2(Y, X)
     H = np.sqrt(X * X + Y * Y)
     I = FACT * np.arctan2(Z, H)

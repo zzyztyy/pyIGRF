@@ -9,3 +9,4 @@ It don't need any Fortran compiler.
 """
 
 from pyIGRF.value import igrf_variation, igrf_value
+from pyIGRF import loadCoeffs, calculate

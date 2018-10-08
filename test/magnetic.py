@@ -9,3 +9,6 @@ if __name__ == '__main__':
     print(pyIGRF.igrf_variation.__doc__)
     print(pyIGRF.igrf_value(lat, lon, alt, date))
     print(pyIGRF.igrf_variation(lat, lon, alt, date))
+    g, h = pyIGRF.loadCoeffs.getCoeffs(2005)
+    print(g)
+    print(h)

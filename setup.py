@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pyIGRF",
-    version="0.1.5",
+    version="0.1.6",
     author="zzyztyy",
     author_email="2375672032@qq.com",
     description="IGRF-12 Model by Python",
@@ -16,7 +16,7 @@ setup(
     url="https://github.com/zzyztyy/pyIGRF",
     packages=find_packages(),
     install_requires=[
-        "numpy"
+        "NumPy"
     ],
     package_data={'': ['src/igrf12coeffs.txt']}
 )

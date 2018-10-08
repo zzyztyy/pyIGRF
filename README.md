@@ -18,13 +18,6 @@ You can calculate magnetic field intensity.
 or calculate the annual variation of magnetic filed intensity.  
 >```pyIGRF.igrf_variation(lat, lon, alt, date)```
 
-If you want to use IGRF-12 more flexible, you can use module *calculate*. 
-There is two function which is closer to Fortran. You can change it for different coordination.
->```from pyIGRF import calculate```  
-
-Another module *loadCoeffs* can be used to get *g[m][n]* or *h[m][n]* same as that in formula.
->```from pyIGRF.loadCoeffs import getCoeffs``` 
-
 the response is 7 float number about magnetic filed which is:  
 - D: declination (+ve east)
 - I: inclination (+ve down)
@@ -34,6 +27,15 @@ the response is 7 float number about magnetic filed which is:
 - Z: vertical component (+ve down)
 - F: total intensity  
 *unit: degree or nT*
+
+If you want to use IGRF-12 more flexibly, you can use module *calculate*. 
+There is two function which is closer to Fortran. You can change it for different coordination.
+>```from pyIGRF import calculate```  
+
+Another module *loadCoeffs* can be used to get *g[m][n]* or *h[m][n]* same as that in formula.
+>```from pyIGRF.loadCoeffs import getCoeffs``` 
+
+
 
 ## Model Introduction and igrf12-coeffs File Download
 https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html

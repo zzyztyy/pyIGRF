@@ -33,7 +33,7 @@ def loadCoeffs(filename):
         return gh
 
 
-gh = loadCoeffs(os.path.dirname(os.path.abspath(__file__))+'\\src\\igrf12coeffs.txt')
+gh = loadCoeffs(os.path.dirname(os.path.abspath(__file__))+'/src/igrf12coeffs.txt')
 
 
 def getCoeffs(date):

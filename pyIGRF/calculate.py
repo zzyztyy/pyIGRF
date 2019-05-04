@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from pyIGRF.loadCoeffs import gh
+from pyIGRF.loadCoeffs import get_coeffs, gh
 
 
 FACT = 180./np.pi
@@ -36,15 +36,13 @@ def geodetic2geocentric(theta, alt):
     return gccolat, d, r
 
 
-def igrf12syn(isv, date, itype, alt, lat, elong):
+def igrf12syn(date, itype, alt, lat, elong):
     """
      This is a synthesis routine for the 12th generation IGRF as agreed
      in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
      2020.0 inclusive. Values for dates from 1945.0 to 2010.0 inclusive are
      definitive, otherwise they are non-definitive.
    INPUT
-     isv   = 0 if main-field values are required
-     isv   = 1 if secular variation values are required
      date  = year A.D. Must be greater than or equal to 1900.0 and
              less than or equal to 2025.0. Warning message is given
              for dates greater than 2020.0. Must be double precision.
@@ -70,7 +68,7 @@ def igrf12syn(isv, date, itype, alt, lat, elong):
      in July 2003. Reference radius remains as 6371.2 km - it is NOT the mean
      radius (= 6371.0 km) but 6371.2 km is what is used in determining the
      coefficients. Adaptation by Susan Macmillan, August 2003 (for
-     9th generation), December 2004, December 2009  \ December 2014.
+     9th generation), December 2004, December 2009, December 2014.
 
      Coefficients at 1995.0 incorrectly rounded (rounded up instead of
      to even) included as these are the coefficients published in Excel
@@ -78,8 +76,6 @@ def igrf12syn(isv, date, itype, alt, lat, elong):
     """
 
     p, q, cl, sl = [0.] * 105, [0.] * 105, [0.] * 13, [0.] * 13
-
-    # set initial values
     x, y, z = 0., 0., 0.
 
     if date < 1900.0 or date > 2025.0:
@@ -88,56 +84,29 @@ def igrf12syn(isv, date, itype, alt, lat, elong):
         print('Date must be in the range 1900.0 <= date <= 2025.0')
         print('On return f = 1.0, x = y = z = 0')
         return x, y, z, f
-    elif date >= 2015.0:
-        if date > 2020.0:
-            # not adapt for the model but can calculate
-            print('This version of the IGRF is intended for use up to 2020.0.')
-            print('values for ' + str(date) + ' will be computed but may be of reduced accuracy')
-        t = date - 2015.0
-        tc = 1.0
-        if isv == 1:
-            t = 1.0
-            tc = 0.0
-        #     pointer for last coefficient in pen-ultimate set of MF coefficients...
-        ll = 3060
-        nmx = 13
-        nc = nmx * (nmx + 2)
-        kmx = (nmx + 1) * (nmx + 2) / 2
-    else:
-        t = 0.2 * (date - 1900.0)
-        ll = int(t)
-        t = t - ll
-        #     SH models before 1995.0 are only to degree 10
-        if date < 1995.0:
-            nmx = 10
-            nc = nmx * (nmx + 2)
-            ll = nc * ll
-            kmx = (nmx + 1) * (nmx + 2) / 2
-        else:
-            nmx = 13
-            nc = nmx * (nmx + 2)
-            ll = round(0.2 * (date - 1995.0))
-            #     19 is the number of SH models that extend to degree 10
-            ll = 120 * 19 + nc * ll
-            kmx = (nmx + 1) * (nmx + 2) / 2
-        tc = 1.0 - t
-        if isv == 1:
-            tc = -0.2
-            t = 0.2
+
+    g, h = get_coeffs(date)
+    nmx = len(g)-1
+    kmx = (nmx + 1) * (nmx + 2) // 2 + 1
 
     colat = 90-lat
     r = alt
+
     one = colat / FACT
     ct = np.cos(one)
     st = np.sin(one)
+
     one = elong / FACT
     cl[0] = np.cos(one)
     sl[0] = np.sin(one)
+
     cd = 1.0
     sd = 0.0
+
     l = 1
     m = 1
     n = 0
+
     if itype != 2:
         gclat, gclon, r = geodetic2geocentric(np.arctan2(st, ct), alt)
         ct, st = np.cos(gclat), np.sin(gclat)
@@ -152,7 +121,7 @@ def igrf12syn(isv, date, itype, alt, lat, elong):
     q[2] = ct
 
     fn, gn = n, n-1
-    for k in range(2, int(kmx)+1):
+    for k in range(2, kmx):
         if n < m:
             m = 0
             n = n + 1
@@ -179,16 +148,13 @@ def igrf12syn(isv, date, itype, alt, lat, elong):
                 cl[m-1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
                 sl[m-1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
         #     synthesis of x, y and z in geocentric coordinates
-        lm = ll + l
-        # print('g', n, m, k, gh[int(lm-1)], gh[int(lm + nc-1)])
-        one = (tc * gh[int(lm-1)] + t * gh[int(lm + nc-1)]) * rr
+        one = g[n][m] * rr
         if m == 0:
             x = x + one * q[k - 1]
             z = z - (fn + 1.0) * one * p[k - 1]
             l = l + 1
         else:
-            # print('h', n, m, k, gh[int(lm)], gh[int(lm + nc)])
-            two = (tc * gh[int(lm)] + t * gh[int(lm + nc)]) * rr
+            two = h[n][m] * rr
             three = one * cl[m-1] + two * sl[m-1]
             x = x + three * q[k-1]
             z = z - (fn + 1.0) * three * p[k-1]
@@ -204,5 +170,4 @@ def igrf12syn(isv, date, itype, alt, lat, elong):
     x = x * cd + z * sd
     z = z * cd - one * sd
     f = np.sqrt(x * x + y * y + z * z)
-    #
     return x, y, z, f

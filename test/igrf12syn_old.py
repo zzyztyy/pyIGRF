@@ -1,8 +1,12 @@
+import numpy as np
+
 from goto import with_goto
+
+from pyIGRF.loadCoeffs import gh
 
 
 @with_goto
-def igrf12synOld(isv, date, itype, alt, colat, elong):
+def igrf12syn_old(isv, date, itype, alt, colat, elong):
     """
      This is a synthesis routine for the 12th generation IGRF as agreed
      in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
@@ -34,29 +38,28 @@ def igrf12synOld(isv, date, itype, alt, colat, elong):
      in July 2003. Reference radius remains as 6371.2 km - it is NOT the mean
      radius (= 6371.0 km) but 6371.2 km is what is used in determining the
      coefficients. Adaptation by Susan Macmillan, August 2003 (for
-     9th generation), December 2004, December 2009  \ December 2014.
+     9th generation), December 2004, December 2009, December 2014.
      Coefficients at 1995.0 incorrectly rounded (rounded up instead of
      to even) included as these are the coefficients published in Excel
      spreadsheet July 2005.
     """
 
     p, q, cl, sl = [0.] * 105, [0.] * 105, [0.] * 13, [0.] * 13
-    gh = igrf.loadCoeffs('igrf12coeffs.txt')
 
     # set initial values
     x, y, z = 0., 0., 0.
 
-    if (date<1900.0 or date > 2025.0):
+    if date < 1900.0 or date > 2025.0:
         f = 1.0
         print('This subroutine will not work with a date of ' + str(date))
         print('Date must be in the range 1900.0 <= date <= 20205.0')
         print('On return f = 1.0, x = y = z = 0')
         return x, y, z, f
-    if (date > 2020.0):
+    if date > 2020.0:
         # not adapt for the model but can calculate
         print('This version of the IGRF is intended for use up to 2020.0.')
         print('values for ' + str(date) + ' will be computed but may be of reduced accuracy')
-    if (date >= 2015.0):
+    if date >= 2015.0:
         goto .a1
     t = 0.2 * (date - 1900.0)
     ll = int(t)
@@ -64,7 +67,7 @@ def igrf12synOld(isv, date, itype, alt, colat, elong):
     #
     #     SH models before 1995.0 are only to degree 10
     #
-    if (date<1995.0):
+    if date < 1995.0:
         nmx = 10
         nc = nmx * (nmx + 2)
         ll = nc * ll

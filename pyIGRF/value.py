@@ -16,11 +16,11 @@ def igrf_value(lat, lon, alt=0., year=2005.):
          Z is vertical component (+ve down)
          F is total intensity
     """
-    X, Y, Z, F = calculate.igrf12syn(0, year, 1, alt, lat, lon)
-    D = FACT * np.arctan2(Y, X)
-    H = np.sqrt(X * X + Y * Y)
-    I = FACT * np.arctan2(Z, H)
-    return D, I, H, X, Y, Z, F
+    x, y, z, f = calculate.igrf12syn(year, 1, alt, lat, lon)
+    d = FACT * np.arctan2(y, x)
+    h = np.sqrt(x * x + y * y)
+    i = FACT * np.arctan2(z, h)
+    return d, i, h, x, y, z, f
 
 
 def igrf_variation(lat, lon, alt=0., year=2005):
@@ -29,16 +29,19 @@ def igrf_variation(lat, lon, alt=0., year=2005):
          D is declination (+ve east)
          I is inclination (+ve down)
          H is horizontal intensity
-         X is north component
-         Y is east component
+         x is north component
+         y is east component
          Z is vertical component (+ve down)
          F is total intensity
     """
-    X, Y, Z, F = calculate.igrf12syn(0, year, 1, alt, lat, lon)
-    H = np.sqrt(X * X + Y * Y)
-    DX, DY, DZ, DF = calculate.igrf12syn(1, year, 1, alt, lat, lon)
-    DD = (60.0 * FACT * (X * DY - Y * DX)) / (H * H)
-    DH = (X * DX + Y * DY) / H
-    DS = (60.0 * FACT * (H * DZ - Z * DH)) / (F * F)
-    DF = (H * DH + Z * DZ) / F
-    return DD, DS, DH, DX, DY, DZ, DF
+    x1, y1, z1, f1 = calculate.igrf12syn(year-1, 1, alt, lat, lon)
+    x2, y2, z2, f2 = calculate.igrf12syn(year+1, 1, alt, lat, lon)
+    x, y, z, f = (x1+x2)/2, (y1+y2)/2, (z1+z2)/2, (f1+f2)/2
+    dx, dy, dz, df = (x2-x1)/2, (y2-y1)/2, (z2-z1)/2, (f2-f1)/2
+    h = np.sqrt(x * x + y * y)
+
+    dd = (FACT * (x * dy - y * dx)) / (h * h)
+    dh = (x * dx + y * dy) / h
+    ds = (FACT * (h * dz - z * dh)) / (f * f)
+    df = (h * dh + z * dz) / f
+    return dd, ds, dh, dx, dy, dz, df

@@ -5,7 +5,7 @@ import os
 import numpy as np
 
 
-def loadCoeffs(filename):
+def load_coeffs(filename):
     """
     load igrf12 coeffs from file
     :param filename: file which save coeffs (str)
@@ -33,12 +33,12 @@ def loadCoeffs(filename):
         return gh
 
 
-gh = loadCoeffs(os.path.dirname(os.path.abspath(__file__))+'/src/igrf12coeffs.txt')
+gh = load_coeffs(os.path.dirname(os.path.abspath(__file__)) + '/src/igrf12coeffs.txt')
 
 
-def getCoeffs(date):
+def get_coeffs(date):
     """
-    :param gh: list from loadCoeffs
+    :param gh: list from load_coeffs
     :param date: float
     :return: list: g, list: h
     """
@@ -70,7 +70,7 @@ def getCoeffs(date):
         else:
             nmx = 13
             nc = nmx * (nmx + 2)
-            ll = round(0.2 * (date - 1995.0))
+            ll = int(0.2 * (date - 1995.0))
             #     19 is the number of SH models that extend to degree 10
             ll = 120 * 19 + nc * ll
         tc = 1.0 - t

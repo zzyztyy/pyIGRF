@@ -33,7 +33,7 @@ def load_coeffs(filename):
         return gh
 
 
-gh = load_coeffs(os.path.dirname(os.path.abspath(__file__)) + '/src/igrf12coeffs.txt')
+gh = load_coeffs(os.path.dirname(os.path.abspath(__file__)) + '/src/igrf13coeffs.txt')
 
 
 def get_coeffs(date):
@@ -42,17 +42,17 @@ def get_coeffs(date):
     :param date: float
     :return: list: g, list: h
     """
-    if date < 1900.0 or date > 2025.0:
+    if date < 1900.0 or date > 2030.0:
         print('This subroutine will not work with a date of ' + str(date))
-        print('Date must be in the range 1900.0 <= date <= 2025.0')
+        print('Date must be in the range 1900.0 <= date <= 2030.0')
         print('On return [], []')
         return [], []
-    elif date >= 2015.0:
-        if date > 2020.0:
+    elif date >= 2020.0:
+        if date > 2025.0:
             # not adapt for the model but can calculate
-            print('This version of the IGRF is intended for use up to 2020.0.')
+            print('This version of the IGRF is intended for use up to 2025.0.')
             print('values for ' + str(date) + ' will be computed but may be of reduced accuracy')
-        t = date - 2015.0
+        t = date - 2020.0
         tc = 1.0
         #     pointer for last coefficient in pen-ultimate set of MF coefficients...
         ll = 3060

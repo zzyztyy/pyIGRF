@@ -1,6 +1,6 @@
 # pyIGRF
 ## What is pyIGRF?  
-This is a package of IGRF-12 (International Geomagnetic Reference Field) about python version. 
+This is a package of IGRF-13 (International Geomagnetic Reference Field) about python version. 
 We can calculate magnetic field intensity and transform coordinate between GeoGraphical and GeoMagnetic.
 It don't need any Fortran compiler. But it needs NumPy package.  
 
@@ -28,14 +28,14 @@ the response is 7 float number about magnetic filed which is:
 - F: total intensity  
 *unit: degree or nT*
 
-If you want to use IGRF-12 more flexibly, you can use module *calculate*. 
+If you want to use IGRF-13 more flexibly, you can use module *calculate*. 
 There is two function which is closer to Fortran. You can change it for different coordination.
 >```from pyIGRF import calculate```  
 
-Another module *loadCoeffs* can be used to get *g[m][n]* or *h[m][n]* same as that in formula.
->```from pyIGRF.loadCoeffs import getCoeffs``` 
+Another module *load_coeffs* can be used to get *g[m][n]* or *h[m][n]* same as that in formula.
+>```from pyIGRF.load_coeffs import get_coeffs``` 
 
 
 
-## Model Introduction and igrf12-coeffs File Download
+## Model Introduction and igrf13-coeffs File Download
 https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html

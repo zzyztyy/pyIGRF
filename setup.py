@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pyIGRF",
-    version="0.3.1",
+    version="0.3.2",
     author="zzyztyy",
     author_email="2375672032@qq.com",
     description="IGRF-13 Model by Python",

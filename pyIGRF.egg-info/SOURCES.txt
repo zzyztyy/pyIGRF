@@ -1,3 +1,5 @@
+MANIFEST.in
+README.md
 setup.py
 pyIGRF/__init__.py
 pyIGRF/calculate.py
@@ -8,4 +10,4 @@ pyIGRF.egg-info/SOURCES.txt
 pyIGRF.egg-info/dependency_links.txt
 pyIGRF.egg-info/requires.txt
 pyIGRF.egg-info/top_level.txt
-pyIGRF/src/igrf12coeffs.txt
+pyIGRF/src/igrf13coeffs.txt

@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
+from math import sin, cos, sqrt, atan2, pi
+import warnings
 
 from ._loadcoeffs import get_coeffs
+from ._typeguard import typechecked
 
 
-FACT = 180./np.pi
+FACT = 180.0 / pi
 
 
-def geodetic2geocentric(theta, alt):
+@typechecked
+def geodetic2geocentric(
+    theta: float,
+    alt: float,
+) -> tuple[float, float, float]:
     """
     Conversion from geodetic to geocentric coordinates by using the WGS84 spheroid.
     :param theta: colatitude (float, rad)
@@ -17,26 +23,35 @@ def geodetic2geocentric(theta, alt):
             d: gccolat minus theta (float, rad)
             r: geocentric radius (float, km)
     """
-    ct = np.cos(theta)
-    st = np.sin(theta)
+
+    ct = cos(theta)
+    st = sin(theta)
     a2 = 40680631.6
     b2 = 40408296.0
     one = a2 * st * st
     two = b2 * ct * ct
     three = one + two
-    rho = np.sqrt(three)
-    r = np.sqrt(alt * (alt + 2.0 * rho) + (a2 * one + b2 * two) / three)
+    rho = sqrt(three)
+    r = sqrt(alt * (alt + 2.0 * rho) + (a2 * one + b2 * two) / three)
     cd = (alt + rho) / r
     sd = (a2 - b2) / rho * ct * st / r
     one = ct
     ct = ct * cd - st * sd
     st = st * cd + one * sd
-    gccolat = np.arctan2(st, ct)
-    d = np.arctan2(sd, cd)
+    gccolat = atan2(st, ct)
+    d = atan2(sd, cd)
+
     return gccolat, d, r
 
 
-def igrf12syn(date, itype, alt, lat, elong):
+@typechecked
+def igrf12syn(
+    date: float,
+    itype: int,
+    alt: float,
+    lat: float,
+    elong: float,
+) -> tuple[float, float, float, float]:
     """
      This is a synthesis routine for the 12th generation IGRF as agreed
      in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
@@ -80,25 +95,27 @@ def igrf12syn(date, itype, alt, lat, elong):
 
     if date < 1900.0 or date > 2025.0:
         f = 1.0
-        print('This subroutine will not work with a date of ' + str(date))
-        print('Date must be in the range 1900.0 <= date <= 2025.0')
-        print('On return f = 1.0, x = y = z = 0')
+        warnings.warn((
+            f"This subroutine will not work with a date of {date:f}. "
+            "Date must be in the range 1900.0 <= date <= 2025.0. "
+            "On return f = 1.0, x = y = z = 0"
+        ), RuntimeWarning)
         return x, y, z, f
 
     g, h = get_coeffs(date)
-    nmx = len(g)-1
+    nmx = len(g) - 1
     kmx = (nmx + 1) * (nmx + 2) // 2 + 1
 
-    colat = 90-lat
+    colat = 90 - lat
     r = alt
 
     one = colat / FACT
-    ct = np.cos(one)
-    st = np.sin(one)
+    ct = cos(one)
+    st = sin(one)
 
     one = elong / FACT
-    cl[0] = np.cos(one)
-    sl[0] = np.sin(one)
+    cl[0] = cos(one)
+    sl[0] = sin(one)
 
     cd = 1.0
     sd = 0.0
@@ -108,13 +125,13 @@ def igrf12syn(date, itype, alt, lat, elong):
     n = 0
 
     if itype != 2:
-        gclat, gclon, r = geodetic2geocentric(np.arctan2(st, ct), alt)
-        ct, st = np.cos(gclat), np.sin(gclat)
-        cd, sd = np.cos(gclon), np.sin(gclon)
+        gclat, gclon, r = geodetic2geocentric(atan2(st, ct), alt)
+        ct, st = cos(gclat), sin(gclat)
+        cd, sd = cos(gclon), sin(gclon)
     ratio = 6371.2 / r
     rr = ratio * ratio
 
-    #     computation of Schmidt quasi-normal coefficients p and x(=q)
+    # computation of Schmidt quasi-normal coefficients p and x(=q)
     p[0] = 1.0
     p[2] = st
     q[0] = 0.0
@@ -132,8 +149,8 @@ def igrf12syn(date, itype, alt, lat, elong):
         fm = m
         if m != n:
             gmm = m * m
-            one = np.sqrt(fn * fn - gmm)
-            two = np.sqrt(gn * gn - gmm) / one
+            one = sqrt(fn * fn - gmm)
+            two = sqrt(gn * gn - gmm) / one
             three = (fn + gn) / one
             i = k - n
             j = i - n + 1
@@ -141,13 +158,13 @@ def igrf12syn(date, itype, alt, lat, elong):
             q[k - 1] = three * (ct * q[i - 1] - st * p[i - 1]) - two * q[j - 1]
         else:
             if k != 3:
-                one = np.sqrt(1.0 - 0.5 / fm)
+                one = sqrt(1.0 - 0.5 / fm)
                 j = k - n - 1
-                p[k-1] = one * st * p[j-1]
-                q[k-1] = one * (st * q[j-1] + ct * p[j-1])
-                cl[m-1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
-                sl[m-1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
-        #     synthesis of x, y and z in geocentric coordinates
+                p[k - 1] = one * st * p[j - 1]
+                q[k - 1] = one * (st * q[j - 1] + ct * p[j - 1])
+                cl[m - 1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
+                sl[m - 1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
+        # synthesis of x, y and z in geocentric coordinates
         one = g[n][m] * rr
         if m == 0:
             x = x + one * q[k - 1]
@@ -155,19 +172,20 @@ def igrf12syn(date, itype, alt, lat, elong):
             l = l + 1
         else:
             two = h[n][m] * rr
-            three = one * cl[m-1] + two * sl[m-1]
-            x = x + three * q[k-1]
+            three = one * cl[m - 1] + two * sl[m - 1]
+            x = x + three * q[k - 1]
             z = z - (fn + 1.0) * three * p[k-1]
             if st == 0.0:
                 y = y + (one * sl[m - 1] - two * cl[m - 1]) * q[k - 1] * ct
             else:
-                y = y + (one * sl[m-1] - two * cl[m-1]) * fm * p[k-1] / st
+                y = y + (one * sl[m - 1] - two * cl[m - 1]) * fm * p[k - 1] / st
             l = l + 2
-        m = m+1
+        m = m + 1
 
-    #     conversion to coordinate system specified by itype
+    # conversion to coordinate system specified by itype
     one = x
     x = x * cd + z * sd
     z = z * cd - one * sd
-    f = np.sqrt(x * x + y * y + z * z)
+    f = sqrt(x * x + y * y + z * z)
+
     return x, y, z, f

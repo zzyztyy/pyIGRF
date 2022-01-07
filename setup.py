@@ -17,6 +17,7 @@ setup(
     author_email = "ernst@pleiszenburg.de",
     description = "IGRF-13 Model by Python",
     long_description = readme,
+    long_description_content_type = "text/markdown",
     license = "MIT",
     url = "https://github.com/pleiszenburg/pyIGRF",
     packages = find_packages(SRC_DIR),

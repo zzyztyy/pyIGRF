@@ -1,36 +1,36 @@
 # -*- coding: utf-8 -*-
 
+
 import os
 
-import numpy as np
+from ._typeguard import typechecked
 
 
-def load_coeffs(filename):
+@typechecked
+def load_coeffs(filename: str) -> list[float]:
     """
     load igrf12 coeffs from file
     :param filename: file which save coeffs (str)
     :return: g and h list one by one (list(float))
     """
+
+    with open(filename, mode = 'r', encoding = 'utf-8') as f:
+        gh2arr = [
+            [float(coeff) for coeff in line.strip('\n').split()[3:]]
+            for line in f
+            if line.startswith('g ') or line.startswith('h ')
+        ]
+
+    gh2arr = list(map(list, zip(*gh2arr))) # transpose
+
     gh = []
-    gh2arr = []
-    with open(filename) as f:
-        text = f.readlines()
-        for a in text:
-            if a[:2] == 'g ' or a[:2] == 'h ':
-                b = a.split()[3:]
-                b = [float(x) for x in b]
-                gh2arr.append(b)
-        gh2arr = np.array(gh2arr).transpose()
-        N = len(gh2arr)
-        for i in range(N):
-            if i < 19:
-                for j in range(120):
-                    gh.append(gh2arr[i][j])
-            else:
-                for p in gh2arr[i]:
-                    gh.append(p)
-        gh.append(0)
-        return gh
+    for idx, column in enumerate(gh2arr):
+        stop = 120 if idx < 19 else None
+        for coeff in column[:stop]:
+            gh.append(coeff)
+    gh.append(0)
+
+    return gh
 
 
 gh = load_coeffs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'igrf13coeffs.txt'))

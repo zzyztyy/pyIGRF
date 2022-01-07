@@ -14,7 +14,7 @@ setup(
     long_description=open("README.md").read(),
     license="MIT",
     url="https://github.com/zzyztyy/pyIGRF",
-    packages=find_packages(),
+    packages=find_packages("src"),
     install_requires=[
         "NumPy"
     ],

@@ -17,11 +17,12 @@ def geodetic2geocentric(
 ) -> tuple[float, float, float]:
     """
     Conversion from geodetic to geocentric coordinates by using the WGS84 spheroid.
-    :param theta: colatitude (float, rad)
-    :param alt: altitude (float, km)
-    :return gccolat: geocentric colatitude (float, rad)
-            d: gccolat minus theta (float, rad)
-            r: geocentric radius (float, km)
+
+    Args:
+        theta : colatitude [rad]
+        alt : altitude [km]
+    Returns:
+        geocentric colatitude (gccolat) [rad], gccolat minus theta (d) [rad], geocentric radius (r) [km]
     """
 
     ct = cos(theta)

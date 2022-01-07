@@ -12,7 +12,7 @@ with open("README.md", mode = 'r', encoding = 'utf-8') as f:
 
 setup(
     name = "pyIGRF",
-    version = "0.3.3",
+    version = "0.3.4",
     author = "pyIGRF authors",
     author_email = "ernst@pleiszenburg.de",
     description = "IGRF-13 Model by Python",

@@ -4,6 +4,7 @@ from math import isclose
 
 import pyIGRF
 
+
 def test_doc():
 
     doc = pyIGRF.get_value.__doc__
@@ -13,6 +14,7 @@ def test_doc():
     doc = pyIGRF.get_variation.__doc__
     assert isinstance(doc, str)
     assert len(doc) > 0
+
 
 def test_compute():
 
@@ -46,6 +48,7 @@ def test_compute():
 
     assert all(isclose(a, b) for a, b in zip(expected_value, computed_value))
     assert all(isclose(a, b) for a, b in zip(expected_variation, computed_variation))
+
 
 def test_coeffs():
 

@@ -1,10 +1,10 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
 from setuptools import setup, find_packages
 
+
 SRC_DIR = "src"
+
 
 setup(
     name="pyIGRF",

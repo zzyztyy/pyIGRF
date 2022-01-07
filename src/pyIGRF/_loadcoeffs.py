@@ -48,7 +48,8 @@ def get_coeffs(date: float) -> tuple[list, list]:
     if date < 1900.0 or date > 2030.0:
         warnings.warn((
             f"Will not work with a date of {date:f}. "
-            "Date must be in the range 1900.0 <= date <= 2030.0."
+            "Date must be in the range 1900.0 <= date <= 2030.0. "
+            "On return [], []"
         ), RuntimeWarning)
         return [], []
     elif date >= 2020.0:

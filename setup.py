@@ -17,9 +17,7 @@ setup(
     url="https://github.com/zzyztyy/pyIGRF",
     packages=find_packages(SRC_DIR),
     package_dir={"": SRC_DIR},
-    install_requires=[
-        "NumPy"
-    ],
+    install_requires=[],
     extras_require={
         "dev": [
             "goto-statement",

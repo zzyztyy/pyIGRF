@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 
-import pyIGRF.calculate as calculate
+from . import calculate
 
 FACT = 180./np.pi
 

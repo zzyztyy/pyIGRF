@@ -1,8 +1,8 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from pyIGRF.loadCoeffs import get_coeffs, gh
+
+from .loadCoeffs import get_coeffs, gh
 
 
 FACT = 180./np.pi

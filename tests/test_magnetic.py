@@ -6,11 +6,11 @@ import pyIGRF
 
 def test_doc():
 
-    doc = pyIGRF.igrf_value.__doc__
+    doc = pyIGRF.get_value.__doc__
     assert isinstance(doc, str)
     assert len(doc) > 0
 
-    doc = pyIGRF.igrf_variation.__doc__
+    doc = pyIGRF.get_variation.__doc__
     assert isinstance(doc, str)
     assert len(doc) > 0
 
@@ -41,8 +41,8 @@ def test_compute():
         15.49444079804009,
     )
 
-    computed_value = pyIGRF.igrf_value(lat, lon, alt, date)
-    computed_variation = pyIGRF.igrf_variation(lat, lon, alt, date)
+    computed_value = pyIGRF.get_value(lat, lon, alt, date)
+    computed_variation = pyIGRF.get_variation(lat, lon, alt, date)
 
     assert all(isclose(a, b) for a, b in zip(expected_value, computed_value))
     assert all(isclose(a, b) for a, b in zip(expected_variation, computed_variation))

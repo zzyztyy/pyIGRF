@@ -10,7 +10,7 @@ FACT = 180.0 / pi
 
 
 @typechecked
-def igrf_value(
+def get_value(
     lat: float,
     lon: float,
     alt: float = 0.0,
@@ -37,7 +37,7 @@ def igrf_value(
 
 
 @typechecked
-def igrf_variation(
+def get_variation(
     lat: float,
     lon: float,
     alt: float = 0.0,

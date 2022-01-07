@@ -7,5 +7,13 @@ This is a package of IGRF-12 (International Geomagnetic Reference Field) about p
 It don't need any Fortran compiler.
 """
 
-from .value import igrf_variation, igrf_value
-from . import loadCoeffs, calculate
+from .value import (
+    igrf_variation,
+    igrf_value,
+)
+from ._loadcoeffs import (
+    GH,
+    get_coeffs,
+    load_coeffs,
+)
+from . import calculate

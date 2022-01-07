@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from .loadCoeffs import get_coeffs
+from ._loadcoeffs import get_coeffs
 
 
 FACT = 180./np.pi

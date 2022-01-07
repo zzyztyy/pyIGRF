@@ -51,7 +51,7 @@ def test_coeffs():
 
     date = 1999
 
-    g, h = pyIGRF.loadCoeffs.get_coeffs(date)
+    g, h = pyIGRF.get_coeffs(date)
 
     assert len(g) == 14
     assert len(h) == 14

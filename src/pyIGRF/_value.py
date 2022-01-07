@@ -2,7 +2,7 @@
 
 from math import atan2, sqrt, pi
 
-from ._calculate import igrf12syn
+from ._calculate import get_syn
 from ._typeguard import typechecked
 
 
@@ -27,7 +27,7 @@ def get_value(
          F is total intensity
     """
 
-    x, y, z, f = igrf12syn(year, 1, alt, lat, lon)
+    x, y, z, f = get_syn(year, 1, alt, lat, lon)
 
     d = FACT * atan2(y, x)
     h = sqrt(x * x + y * y)
@@ -54,8 +54,8 @@ def get_variation(
          F is total intensity
     """
 
-    x1, y1, z1, f1 = igrf12syn(year - 1, 1, alt, lat, lon)
-    x2, y2, z2, f2 = igrf12syn(year + 1, 1, alt, lat, lon)
+    x1, y1, z1, f1 = get_syn(year - 1, 1, alt, lat, lon)
+    x2, y2, z2, f2 = get_syn(year + 1, 1, alt, lat, lon)
     x, y, z, f = (x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2, (f1 + f2) / 2
     dx, dy, dz, df = (x2 - x1) / 2, (y2 - y1) / 2, (z2 - z1) / 2, (f2 - f1) / 2
     h = sqrt(x * x + y * y)

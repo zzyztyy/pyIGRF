@@ -8,7 +8,7 @@ __author__ = 'pyIGRF authors'
 
 from ._calculate import (
     geodetic2geocentric,
-    igrf12syn,
+    get_syn,
 )
 
 from ._coeffs import (

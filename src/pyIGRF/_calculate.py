@@ -46,13 +46,13 @@ def geodetic2geocentric(
 
 
 @typechecked
-def igrf12syn(
+def get_syn(
     date: float,
     itype: int,
     alt: float,
     lat: float,
     elong: float,
-) -> tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]: # TODO check 12th gen vs 13th gen synthesis routine
     """
      This is a synthesis routine for the 12th generation IGRF as agreed
      in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to

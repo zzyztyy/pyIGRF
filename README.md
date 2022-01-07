@@ -46,7 +46,7 @@ The return value is a tuple of seven floating point numbers representing the loc
 
 *units: degree or nT*
 
-If you want to use the IGRF-13 model in a more flexible manner, you can use the functions `geodetic2geocentric` and `igrf12syn`. They are somewhat closer to the original Fortran implementation.
+If you want to use the IGRF-13 model in a more flexible manner, you can use the functions `geodetic2geocentric` and `get_syn`. They are somewhat closer to the original Fortran implementation.
 
 Another function, `get_coeffs`, can be used to get `g[m][n]` or `h[m][n]` corresponding to the IGRF's formula.
 

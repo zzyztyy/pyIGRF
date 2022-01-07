@@ -137,7 +137,7 @@ def igrf12syn(
     q[0] = 0.0
     q[2] = ct
 
-    fn, gn = n, n-1
+    fn, gn = n, n - 1
     for k in range(2, kmx):
         if n < m:
             m = 0

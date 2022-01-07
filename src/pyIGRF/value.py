@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from . import calculate
+from ._calculate import igrf12syn
 
 FACT = 180./np.pi
 
@@ -18,7 +18,7 @@ def igrf_value(lat, lon, alt=0., year=2005.):
          Z is vertical component (+ve down)
          F is total intensity
     """
-    x, y, z, f = calculate.igrf12syn(year, 1, alt, lat, lon)
+    x, y, z, f = igrf12syn(year, 1, alt, lat, lon)
     d = FACT * np.arctan2(y, x)
     h = np.sqrt(x * x + y * y)
     i = FACT * np.arctan2(z, h)
@@ -36,8 +36,8 @@ def igrf_variation(lat, lon, alt=0., year=2005):
          Z is vertical component (+ve down)
          F is total intensity
     """
-    x1, y1, z1, f1 = calculate.igrf12syn(year-1, 1, alt, lat, lon)
-    x2, y2, z2, f2 = calculate.igrf12syn(year+1, 1, alt, lat, lon)
+    x1, y1, z1, f1 = igrf12syn(year-1, 1, alt, lat, lon)
+    x2, y2, z2, f2 = igrf12syn(year+1, 1, alt, lat, lon)
     x, y, z, f = (x1+x2)/2, (y1+y2)/2, (z1+z2)/2, (f1+f2)/2
     dx, dy, dz, df = (x2-x1)/2, (y2-y1)/2, (z2-z1)/2, (f2-f1)/2
     h = np.sqrt(x * x + y * y)

@@ -16,4 +16,7 @@ from ._loadcoeffs import (
     get_coeffs,
     load_coeffs,
 )
-from . import calculate
+from ._calculate import (
+    geodetic2geocentric,
+    igrf12syn,
+)

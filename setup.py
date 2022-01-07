@@ -22,7 +22,8 @@ setup(
     ],
     extras_require={
         "dev": [
-            "goto-statement"
+            "goto-statement",
+            "typeguard",
         ]
     },
     package_data={'': ['src/igrf13coeffs.txt']}

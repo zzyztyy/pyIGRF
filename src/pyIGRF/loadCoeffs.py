@@ -2,6 +2,7 @@
 
 
 import os
+import warnings
 
 from ._typeguard import typechecked
 
@@ -33,36 +34,40 @@ def load_coeffs(filename: str) -> list[float]:
     return gh
 
 
-gh = load_coeffs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'igrf13coeffs.txt'))
+GH = load_coeffs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'igrf13coeffs.txt'))
 
 
-def get_coeffs(date):
+@typechecked
+def get_coeffs(date: float) -> tuple[list, list]:
     """
     :param gh: list from load_coeffs
     :param date: float
     :return: list: g, list: h
     """
+
     if date < 1900.0 or date > 2030.0:
-        print('This subroutine will not work with a date of ' + str(date))
-        print('Date must be in the range 1900.0 <= date <= 2030.0')
-        print('On return [], []')
+        warnings.warn((
+            f"Will not work with a date of {date:f}. "
+            "Date must be in the range 1900.0 <= date <= 2030.0."
+        ), RuntimeWarning)
         return [], []
     elif date >= 2020.0:
         if date > 2025.0:
-            # not adapt for the model but can calculate
-            print('This version of the IGRF is intended for use up to 2025.0.')
-            print('values for ' + str(date) + ' will be computed but may be of reduced accuracy')
+            warnings.warn((
+                "This version of the IGRF is intended for use up to 2025.0."
+                f"Values for {date:f} will be computed but may be of reduced accuracy."
+            ), RuntimeWarning) # not adapt for the model but can calculate
         t = date - 2020.0
         tc = 1.0
-        #     pointer for last coefficient in pen-ultimate set of MF coefficients...
-        ll = 3060+195
+        # pointer for last coefficient in pen-ultimate set of MF coefficients...
+        ll = 3060 + 195
         nmx = 13
         nc = nmx * (nmx + 2)
     else:
         t = 0.2 * (date - 1900.0)
         ll = int(t)
         t = t - ll
-        #     SH models before 1995.0 are only to degree 10
+        # SH models before 1995.0 are only to degree 10
         if date < 1995.0:
             nmx = 10
             nc = nmx * (nmx + 2)
@@ -71,26 +76,25 @@ def get_coeffs(date):
             nmx = 13
             nc = nmx * (nmx + 2)
             ll = int(0.2 * (date - 1995.0))
-            #     19 is the number of SH models that extend to degree 10
+            #  19 is the number of SH models that extend to degree 10
             ll = 120 * 19 + nc * ll
         tc = 1.0 - t
 
     g, h = [], []
-    temp = ll-1
-    for n in range(nmx+1):
+    temp = ll - 1
+    for n in range(nmx + 1):
         g.append([])
         h.append([])
         if n == 0:
             g[0].append(None)
-        for m in range(n+1):
+        for m in range(n + 1):
             if m != 0:
-                g[n].append(tc*gh[temp] + t*gh[temp+nc])
-                h[n].append(tc*gh[temp+1] + t*gh[temp+nc+1])
+                g[n].append(tc * GH[temp] + t * GH[temp + nc])
+                h[n].append(tc * GH[temp + 1] + t * GH[temp + nc + 1])
                 temp += 2
-                # print(n, m, g[n][m], h[n][m])
             else:
-                g[n].append(tc*gh[temp] + t*gh[temp+nc])
+                g[n].append(tc * GH[temp] + t * GH[temp + nc])
                 h[n].append(None)
                 temp += 1
-                # print(n, m, g[n][m], h[n][m])
+
     return g, h

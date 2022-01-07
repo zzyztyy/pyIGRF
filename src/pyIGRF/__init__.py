@@ -11,7 +11,7 @@ from ._calculate import (
     igrf12syn,
 )
 
-from ._loadcoeffs import (
+from ._coeffs import (
     GH,
     get_coeffs,
     load_coeffs,

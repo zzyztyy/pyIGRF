@@ -3,7 +3,7 @@
 from math import sin, cos, sqrt, atan2, pi
 import warnings
 
-from ._loadcoeffs import get_coeffs
+from ._coeffs import get_coeffs
 from ._typeguard import typechecked
 
 

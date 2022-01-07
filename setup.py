@@ -18,5 +18,10 @@ setup(
     install_requires=[
         "NumPy"
     ],
+    extras_require={
+        "dev": [
+            "goto-statement"
+        ]
+    },
     package_data={'': ['src/igrf13coeffs.txt']}
 )

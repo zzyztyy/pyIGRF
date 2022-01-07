@@ -1,8 +1,10 @@
-import numpy as np
+# -*- coding: utf-8 -*-
+
+from math import sin, cos, sqrt
 
 from goto import with_goto
 
-from pyIGRF.loadCoeffs import gh
+from pyIGRF import GH
 
 
 @with_goto
@@ -106,11 +108,11 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
     label .a2
     r = alt
     one = colat * 0.017453292
-    ct = np.cos(one)
-    st = np.sin(one)
+    ct = cos(one)
+    st = sin(one)
     one = elong * 0.017453292
-    cl[0] = np.cos(one)
-    sl[0] = np.sin(one)
+    cl[0] = cos(one)
+    sl[0] = sin(one)
     cd = 1.0
     sd = 0.0
     l = 1
@@ -127,8 +129,8 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
     one = a2 * st * st
     two = b2 * ct * ct
     three = one + two
-    rho = np.sqrt(three)
-    r = np.sqrt(alt * (alt + 2.0 * rho) + (a2 * one + b2 * two) / three)
+    rho = sqrt(three)
+    r = sqrt(alt * (alt + 2.0 * rho) + (a2 * one + b2 * two) / three)
     cd = (alt + rho) / r
     sd = (a2 - b2) / rho * ct * st / r
     one = ct
@@ -160,7 +162,7 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
             goto .a5
         if (k == 3):
             goto .a6
-        one = np.sqrt(1.0 - 0.5 / fm)
+        one = sqrt(1.0 - 0.5 / fm)
         j = k - n - 1
         p[k-1] = one * st * p[j-1]
         q[k-1] = one * (st * q[j-1] + ct * p[j-1])
@@ -169,8 +171,8 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
         goto .a6
         label .a5
         gmm = m * m
-        one = np.sqrt(fn * fn - gmm)
-        two = np.sqrt(gn * gn - gmm) / one
+        one = sqrt(fn * fn - gmm)
+        two = sqrt(gn * gn - gmm) / one
         three = (fn + gn) / one
         i = k - n
         j = i - n + 1
@@ -181,12 +183,12 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
         #
         label .a6
         lm = ll + l
-        # print('g', n, m, k, gh[int(lm-1)], gh[int(lm + nc-1)])
-        one = (tc * gh[int(lm-1)] + t * gh[int(lm + nc-1)]) * rr
+        # print('g', n, m, k, GH[int(lm-1)], GH[int(lm + nc-1)])
+        one = (tc * GH[int(lm-1)] + t * GH[int(lm + nc-1)]) * rr
         if (m == 0):
             goto .a9
-        # print('h', n, m, k, gh[int(lm)], gh[int(lm + nc)])
-        two = (tc * gh[int(lm)] + t * gh[int(lm + nc)]) * rr
+        # print('h', n, m, k, GH[int(lm)], GH[int(lm + nc)])
+        two = (tc * GH[int(lm)] + t * GH[int(lm + nc)]) * rr
         three = one * cl[m-1] + two * sl[m-1]
         x = x + three * q[k-1]
         z = z - (fn + 1.0) * three * p[k-1]
@@ -211,6 +213,6 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
     one = x
     x = x * cd + z * sd
     z = z * cd - one * sd
-    f = np.sqrt(x * x + y * y + z * z)
+    f = sqrt(x * x + y * y + z * z)
     #
     return x, y, z, f

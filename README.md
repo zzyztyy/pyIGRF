@@ -1,41 +1,55 @@
-# pyIGRF
-## What is pyIGRF?  
-This is a package of IGRF-13 (International Geomagnetic Reference Field) about python version. 
-We can calculate magnetic field intensity and transform coordinate between GeoGraphical and GeoMagnetic.
-It don't need any Fortran compiler. But it needs NumPy package.  
+# pyIGRF - forked
+
+**This is a cleaned-up and modernized fork of ``pyIGRF``. Be aware that there are a number of small function and module name differences to the original ``pyIGRF`` package. The fork's main goals are speed and ease of maintainability. This is work in progress.**
+
+## What is pyIGRF?
+
+`pyIGRF` is a Python package offering the IGRF-13 (International Geomagnetic Reference Field) model. You can use it to calculate the magnetic field's intensity and to transform coordinates between GeoGraphical and GeoMagnetic. The package does not require any Fortran compiler - it is pure Python.
 
 ## How to Install?
-Download this package and run install.
->```python setup.py install```
+
+Use pip to install the latest development version from Github:
+
+```bash
+pip install git+https://github.com/pleiszenburg/pyIGRF.git@develop
+```
 
 ## How to Use it?
-First import this package.  
-> ```import pyIGRF```
 
-You can calculate magnetic field intensity.   
->```pyIGRF.igrf_value(lat, lon, alt, date)```
+First import the package:
 
-or calculate the annual variation of magnetic filed intensity.  
->```pyIGRF.igrf_variation(lat, lon, alt, date)```
+```python
+import pyIGRF
+```
 
-the response is 7 float number about magnetic filed which is:  
+You can calculate the magnetic field's intensity:
+
+```python
+pyIGRF.get_value(lat, lon, alt, date)
+```
+
+You can calculate the annual variation of the magnetic field's intensity:
+
+```python
+pyIGRF.get_variation(lat, lon, alt, date)
+```
+
+The return value is a tuple of seven floating point numbers representing the local magnetic field:
+
 - D: declination (+ve east)
 - I: inclination (+ve down)
 - H: horizontal intensity
 - X: north component
 - Y: east component
 - Z: vertical component (+ve down)
-- F: total intensity  
-*unit: degree or nT*
+- F: total intensity
 
-If you want to use IGRF-13 more flexibly, you can use module *calculate*. 
-There is two function which is closer to Fortran. You can change it for different coordination.
->```from pyIGRF import calculate```  
+*units: degree or nT*
 
-Another module *load_coeffs* can be used to get *g[m][n]* or *h[m][n]* same as that in formula.
->```from pyIGRF.load_coeffs import get_coeffs``` 
+If you want to use the IGRF-13 model in a more flexible manner, you can use the functions `geodetic2geocentric` and `igrf12syn`. They are somewhat closer to the original Fortran implementation.
 
+Another function, `get_coeffs`, can be used to get `g[m][n]` or `h[m][n]` corresponding to the IGRF's formula.
 
+## References
 
-## Model Introduction and igrf13-coeffs File Download
-https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html
+- [Model introduction and IGRF-13 coefficients file download at NOAA](https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html)

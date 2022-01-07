@@ -76,7 +76,7 @@ def get_coeffs(date: float) -> tuple[list, list]:
             nmx = 13
             nc = nmx * (nmx + 2)
             ll = int(0.2 * (date - 1995.0))
-            #  19 is the number of SH models that extend to degree 10
+            # 19 is the number of SH models that extend to degree 10
             ll = 120 * 19 + nc * ll
         tc = 1.0 - t
 

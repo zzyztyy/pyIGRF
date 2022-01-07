@@ -4,6 +4,7 @@
 from __future__ import print_function
 from setuptools import setup, find_packages
 
+SRC_DIR = "src"
 
 setup(
     name="pyIGRF",
@@ -14,7 +15,8 @@ setup(
     long_description=open("README.md").read(),
     license="MIT",
     url="https://github.com/zzyztyy/pyIGRF",
-    packages=find_packages("src"),
+    packages=find_packages(SRC_DIR),
+    package_dir={"": SRC_DIR},
     install_requires=[
         "NumPy"
     ],

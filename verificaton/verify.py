@@ -21,9 +21,11 @@ def _compute(
     lat: float,
     lon: float,
     itype: int = 1,
-):
+) -> dict[str, float]:
 
     assert itype in (1, 2)
+    assert 1900.0 <= year <= 2030.0
+    assert -90.0 <= lat <= 90.0
 
     cmd_fn = os.path.join(FLD, CMD)
     proc = spawn(cmd_fn)
@@ -31,10 +33,10 @@ def _compute(
     proc.expect(' or press "Return" for output to screen')
     proc.sendline('') # file or stdout -> stdout
 
-    proc.expect(' 2 - geocentric (shape of Earth is approximated by a sphere)')
+    proc.expect(r' 2 - geocentric \(shape of Earth is approximated by a sphere\)')
     proc.sendline(f'{itype:d}') # coordinate system
 
-    proc.expect(' 3 - values on a latitude/longitude grid at one date')
+    proc.expect(r' 3 - values on a latitude\/longitude grid at one date')
     proc.sendline('1') # values at one or more locations & dates
 
     proc.expect(' 2 - in decimal degrees')
@@ -50,14 +52,51 @@ def _compute(
     proc.sendline(f'{lat:0.03f}')
     proc.sendline(f'{lon:0.03f}')
 
-    proc.expect(' Enter place name (20 characters maximum)')
+    proc.expect(r' Enter place name \(20 characters maximum\)')
     proc.sendline('')
 
-    reply = proc.before
-    print(reply)
-
-    proc.expect(' Do you want values for another date & position? (y/n)')
+    proc.expect(r' Do you want values for another date \& position\? \(y/n\)')
+    reply = _parse_reply(proc.before.decode('utf-8'))
     proc.sendline('n')
+
+    proc.wait()
+
+    return reply
+
+
+@typechecked
+def _parse_reply(reply: str) -> dict[str, float]:
+
+    lines = [
+        line.strip()
+        for line in reply.split('\n')
+        if len(line.strip()) > 0
+    ]
+    lines.pop(0)
+
+    reply = {}
+    for line in lines:
+
+        name, fragment = line.split('=', 1)
+        name = name.strip()
+        fragment = fragment.strip()
+
+        value, svvalue = fragment.split('SV')
+        value = value.strip()
+
+        if name in ('D', 'I'):
+            value = value.split()
+            value = float(value[0]) + float(value[2]) / 60
+        else:
+            value, _ = value.split(' ')
+            value = float(value)
+
+        svvalue = float(svvalue.split()[1])
+
+        reply[name] = value
+        reply[f'{name:s}_SV'] = svvalue
+
+    return reply
 
 
 @typechecked
@@ -103,12 +142,13 @@ def main(clean: bool = False):
     if not os.path.exists(cmd_fn):
         _build(src_fn, cmd_fn)
 
-    _compute(
+    ret = _compute(
         year = 2020.456,
         alt = 99.876,
         lat = 12.345,
         lon = 67.894,
     )
+    print(ret)
 
 
 if __name__ == '__main__':

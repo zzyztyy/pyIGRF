@@ -17,14 +17,21 @@ def get_value(
     year: float = 2005.0,
 ) -> tuple[float, float, float, float, float, float, float]:
     """
-    :return
-         D is declination (+ve east)
-         I is inclination (+ve down)
-         H is horizontal intensity
-         X is north component
-         Y is east component
-         Z is vertical component (+ve down)
-         F is total intensity
+    Computes magnetic field values at given point in space.
+
+    Args:
+        lat : Latitude
+        lon : Longitude
+        alt : Altitude
+        year : Between 1900.0 and 2030.0
+    Returns:
+        D, declination (+ve east);
+        I, inclination (+ve down);
+        H, horizontal intensity;
+        X, north component;
+        Y, east component;
+        Z, vertical component (+ve down);
+        F, total intensity
     """
 
     x, y, z, f = get_syn(year, 1, alt, lat, lon)
@@ -44,14 +51,21 @@ def get_variation(
     year: float = 2005.0,
 ) -> tuple[float, float, float, float, float, float, float]:
     """
-         Annual variation
-         D is declination (+ve east)
-         I is inclination (+ve down)
-         H is horizontal intensity
-         x is north component
-         y is east component
-         Z is vertical component (+ve down)
-         F is total intensity
+    Computes annual variation of magnetic field values at given point in space.
+
+    Args:
+        lat : Latitude
+        lon : Longitude
+        alt : Altitude
+        year : Between 1900.0 and 2030.0
+    Returns:
+        D, declination (+ve east);
+        I, inclination (+ve down);
+        H, horizontal intensity;
+        x, north component;
+        y, east component;
+        Z, vertical component (+ve down);
+        F, total intensity
     """
 
     x1, y1, z1, f1 = get_syn(year - 1, 1, alt, lat, lon)

@@ -47,7 +47,7 @@ def geodetic2geocentric(
 
 @typechecked
 def get_syn(
-    date: float,
+    year: float,
     itype: int,
     alt: float, # double!
     lat: float, # double!
@@ -75,7 +75,7 @@ def get_syn(
     spreadsheet July 2005.
 
     Args:
-        date : year A.D. Must be greater than or equal to 1900.0 and
+        year : year A.D. Must be greater than or equal to 1900.0 and
             less than or equal to 2025.0. Warning message is given
             for dates greater than 2020.0. Must be double precision.
         itype : 1 if geodetic (spheroid), 2 if geocentric (sphere)
@@ -93,16 +93,16 @@ def get_syn(
     p, q, cl, sl = [0.] * 105, [0.] * 105, [0.] * 13, [0.] * 13
     x, y, z = 0., 0., 0.
 
-    if date < 1900.0 or date > 2025.0:
+    if year < 1900.0 or year > 2025.0:
         f = 1.0
         warnings.warn((
-            f"This subroutine will not work with a date of {date:f}. "
-            "Date must be in the range 1900.0 <= date <= 2025.0. "
+            f"This subroutine will not work with a year of {year:f}. "
+            "Date must be in the range 1900.0 <= year <= 2025.0. "
             "On return f = 1.0, x = y = z = 0"
         ), RuntimeWarning)
         return x, y, z, f
 
-    g, h = get_coeffs(date)
+    g, h = get_coeffs(year)
     nmx = len(g) - 1
     kmx = (nmx + 1) * (nmx + 2) // 2 + 1
 

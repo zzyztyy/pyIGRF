@@ -40,48 +40,48 @@ GH = load_coeffs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data'
 
 
 @typechecked
-def get_coeffs(date: float) -> tuple[list, list]:
+def get_coeffs(year: float) -> tuple[list, list]:
     """
     Processes coefficients
 
     Args:
-        date : Years (Gregorian)
+        year : Between 1900.0 and 2030.0
     Returns:
         g and h
     """
 
-    if date < 1900.0 or date > 2030.0:
+    if year < 1900.0 or year > 2030.0:
         warnings.warn((
-            f"Will not work with a date of {date:f}. "
-            "Date must be in the range 1900.0 <= date <= 2030.0. "
+            f"Will not work with a date of {year:f}. "
+            "Date must be in the range 1900.0 <= year <= 2030.0. "
             "On return [], []"
         ), RuntimeWarning)
         return [], []
-    elif date >= 2020.0:
-        if date > 2025.0:
+    elif year >= 2020.0:
+        if year > 2025.0:
             warnings.warn((
                 "This version of the IGRF is intended for use up to 2025.0."
-                f"Values for {date:f} will be computed but may be of reduced accuracy."
+                f"Values for {year:f} will be computed but may be of reduced accuracy."
             ), RuntimeWarning) # not adapt for the model but can calculate
-        t = date - 2020.0
+        t = year - 2020.0
         tc = 1.0
         # pointer for last coefficient in pen-ultimate set of MF coefficients...
         ll = 3060 + 195
         nmx = 13
         nc = nmx * (nmx + 2)
     else:
-        t = 0.2 * (date - 1900.0)
+        t = 0.2 * (year - 1900.0)
         ll = int(t)
         t = t - ll
         # SH models before 1995.0 are only to degree 10
-        if date < 1995.0:
+        if year < 1995.0:
             nmx = 10
             nc = nmx * (nmx + 2)
             ll = nc * ll
         else:
             nmx = 13
             nc = nmx * (nmx + 2)
-            ll = int(0.2 * (date - 1995.0))
+            ll = int(0.2 * (year - 1995.0))
             # 19 is the number of SH models that extend to degree 10
             ll = 120 * 19 + nc * ll
         tc = 1.0 - t

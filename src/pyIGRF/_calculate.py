@@ -93,11 +93,11 @@ def get_syn(
     p, q, cl, sl = [0.] * 105, [0.] * 105, [0.] * 13, [0.] * 13
     x, y, z = 0., 0., 0.
 
-    if year < 1900.0 or year > 2025.0:
+    if year < 1900.0 or year > 2030.0:
         f = 1.0
         warnings.warn((
             f"This subroutine will not work with a year of {year:f}. "
-            "Date must be in the range 1900.0 <= year <= 2025.0. "
+            "Date must be in the range 1900.0 <= year <= 2030.0. "
             "On return f = 1.0, x = y = z = 0"
         ), RuntimeWarning)
         return x, y, z, f

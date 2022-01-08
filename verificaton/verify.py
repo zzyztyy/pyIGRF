@@ -118,7 +118,7 @@ def _compute_arrays(
 
     if parallel:
 
-        with ProcessPoolExecutor(cpu_count() // 2) as p:
+        with ProcessPoolExecutor(cpu_count()) as p:
             tasks = [
                 p.submit(
                     _compute_year_array,

@@ -60,7 +60,7 @@ def get_coeffs(year: float) -> tuple[list, list]:
 
     if year > 2025.0:
         warnings.warn((
-            "This version of the IGRF is intended for use up to 2025.0."
+            "This version of the IGRF is intended for use up to 2025.0 ."
             f"Values for {year:f} will be computed but may be of reduced accuracy."
         ), RuntimeWarning) # not adapt for the model but can calculate
 

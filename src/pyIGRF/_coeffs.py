@@ -57,7 +57,8 @@ def get_coeffs(year: float) -> tuple[list, list]:
             "On return [], []"
         ), RuntimeWarning)
         return [], []
-    elif year >= 2020.0:
+
+    if year >= 2020.0:
         if year > 2025.0:
             warnings.warn((
                 "This version of the IGRF is intended for use up to 2025.0."

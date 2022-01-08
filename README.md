@@ -1,6 +1,6 @@
 # pyIGRF - forked
 
-**This is a cleaned-up and modernized fork of ``pyIGRF``. Be aware that there are a number of small function and module name differences to the original ``pyIGRF`` package. The fork's main goals are speed and ease of maintainability. This is work in progress.**
+**This is a cleaned-up and modernized fork of ``pyIGRF``. Be aware that there are a number of small function and module name differences to the original ``pyIGRF`` package. The fork's main goals are verified results, tests, speed and ease of maintainability. This is work in progress.**
 
 ## What is pyIGRF?
 

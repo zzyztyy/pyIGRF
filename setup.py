@@ -26,7 +26,11 @@ setup(
     extras_require = {
         "dev": [
             "goto-statement",
+            "numpy",
+            "pexpect",
+            "tqdm",
             "typeguard",
+            "zarr",
         ]
     },
     package_data = {'': ['src/igrf13coeffs.txt']}

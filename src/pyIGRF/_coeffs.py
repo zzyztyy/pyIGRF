@@ -89,18 +89,20 @@ def get_coeffs(year: float) -> tuple[list, list]:
     g, h = [], []
     temp = ll - 1
     for n in range(nmx + 1):
-        g.append([])
-        h.append([])
+        gsub = []
+        hsub = []
         if n == 0:
-            g[0].append(None)
+            gsub.append(None)
         for m in range(n + 1):
             if m != 0:
-                g[n].append(tc * GH[temp] + t * GH[temp + nc])
-                h[n].append(tc * GH[temp + 1] + t * GH[temp + nc + 1])
+                gsub.append(tc * GH[temp] + t * GH[temp + nc])
+                hsub.append(tc * GH[temp + 1] + t * GH[temp + nc + 1])
                 temp += 2
             else:
-                g[n].append(tc * GH[temp] + t * GH[temp + nc])
-                h[n].append(None)
+                gsub.append(tc * GH[temp] + t * GH[temp + nc])
+                hsub.append(None)
                 temp += 1
+        g.append(gsub)
+        h.append(hsub)
 
     return g, h

@@ -3,7 +3,7 @@
 import os
 import warnings
 
-from ._debug import typechecked
+from ._debug import typechecked, DEBUG
 
 
 @typechecked
@@ -51,14 +51,15 @@ def get_coeffs(year: float) -> tuple[list, list]:
     """
 
     if year < 1900.0 or year > 2030.0:
-        warnings.warn((
-            f"Will not work with a date of {year:f}. "
-            "Date must be in the range 1900.0 <= year <= 2030.0. "
-            "On return [], []"
-        ), RuntimeWarning)
+        if DEBUG:
+            warnings.warn((
+                f"Will not work with a date of {year:f}. "
+                "Date must be in the range 1900.0 <= year <= 2030.0. "
+                "On return [], []"
+            ), RuntimeWarning)
         return [], []
 
-    if year > 2025.0:
+    if year > 2025.0 and DEBUG:
         warnings.warn((
             "This version of the IGRF is intended for use up to 2025.0 ."
             f"Values for {year:f} will be computed but may be of reduced accuracy."

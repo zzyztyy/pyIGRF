@@ -4,7 +4,7 @@ from math import sin, cos, sqrt, atan2, pi
 import warnings
 
 from ._coeffs import get_coeffs
-from ._debug import typechecked
+from ._debug import typechecked, DEBUG
 
 
 FACT = 180.0 / pi
@@ -95,11 +95,12 @@ def get_syn(
 
     if year < 1900.0 or year > 2030.0:
         f = 1.0
-        warnings.warn((
-            f"This subroutine will not work with a year of {year:f}. "
-            "Date must be in the range 1900.0 <= year <= 2030.0. "
-            "On return f = 1.0, x = y = z = 0"
-        ), RuntimeWarning)
+        if DEBUG:
+            warnings.warn((
+                f"This subroutine will not work with a year of {year:f}. "
+                "Date must be in the range 1900.0 <= year <= 2030.0. "
+                "On return f = 1.0, x = y = z = 0"
+            ), RuntimeWarning)
         return x, y, z, f
 
     g, h = get_coeffs(year)

@@ -3,7 +3,7 @@
 import os
 import warnings
 
-from ._typeguard import typechecked
+from ._debug import typechecked
 
 
 @typechecked

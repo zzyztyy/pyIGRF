@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import cpu_count
 import os
 from subprocess import Popen
 from typing import Union
@@ -14,6 +16,7 @@ from typeguard import typechecked
 
 CMD = "igrf13"
 DATA = "data.h5"
+DTYPE = 'f4'
 FLD = os.path.dirname(__file__)
 URL = "https://www.ngdc.noaa.gov/IAGA/vmod/igrf13.f"
 
@@ -72,10 +75,10 @@ def _compute(
 @typechecked
 def _compute_arrays(
     fn: str,
-    year_step: float = 0.25,
-    lat_step: float = 0.5,
-    lon_step: float = 0.5,
-    alt_step: float = 10.0,
+    year_step: float = 2.5,
+    lat_step: float = 4.5,
+    lon_step: float = 4.5,
+    alt_step: float = 25.0,
 ):
     """
         'D': -0.8833333333333333,
@@ -94,18 +97,81 @@ def _compute_arrays(
         'F_SV': 62.0,
     """
 
-    years = np.arange(1900.0, 2030.0 + year_step, year_step, dtype = 'f8')
-    lat = np.arange(-90.0, 90.0 + lat_step, dtype = 'f8')
-    lon = np.arange(0.0, 360.0 + lon_step, dtype = 'f8')
-    alt = np.arange(-10.0, 400.0 + alt_step, alt_step, dtype = 'f8')
+    years = np.arange(1900.0, 2030.0 + year_step, year_step, dtype = DTYPE)
+    lats = np.arange(-90.0, 90.0 + lat_step, dtype = DTYPE)
+    lons = np.arange(0.0, 360.0 + lon_step, dtype = DTYPE)
+    alts = np.arange(-25.0, 400.0 + alt_step, alt_step, dtype = DTYPE)
+    itypes = (1, 2) # above sea level, from centre of Earth
+
+    radius = 6371.2 # km
 
     columns = ('D', 'I', 'H', 'X', 'Y', 'Z', 'F')
     columns = columns + tuple(f'{column}_SV' for column in columns)
 
     data = np.zeros(
-        (years.shape[0], lat.shape[0], lon.shape[0], alt.shape[0]),
-        dtype = 'f8',
+        (years.shape[0], lats.shape[0], lons.shape[0], alts.shape[0], len(itypes), len(columns)),
+        dtype = DTYPE,
     )
+
+    with ProcessPoolExecutor(cpu_count() // 2) as p:
+        tasks = [
+            p.submit(
+                _compute_year_array,
+                year_idx = year_idx,
+                year = float(year),
+                lats = lats,
+                lons = lons,
+                alts = alts,
+                itypes = itypes,
+                columns = columns,
+                radius = radius,
+            )
+            for year_idx, year in enumerate(years)
+        ]
+        for task in tqdm(tasks):
+            year_idx, year_data = task.result()
+            data[year_idx, ...] = year_data
+
+
+@typechecked
+def _compute_year_array(
+    year_idx: int,
+    year: float,
+    lats: np.array,
+    lons: np.array,
+    alts: np.array,
+    itypes: tuple[int, int],
+    columns: tuple[str, ...],
+    radius: float,
+) -> tuple[int, np.array]:
+
+    data = np.zeros(
+        (lats.shape[0], lons.shape[0], alts.shape[0], len(itypes), len(columns)),
+        dtype = DTYPE,
+    )
+
+    for lat_idx, lat in enumerate(lats):
+        for lon_idx, lon in enumerate(lons):
+            for alt_idx, alt in enumerate(alts):
+                for itype_idx, itype in enumerate(itypes):
+                    elevation = 0 if itype == 1 else radius
+                    field = _compute(
+                        year = year,
+                        lat = float(lat),
+                        lon = float(lon),
+                        alt = float(alt) + elevation,
+                        itype = itype,
+                    )
+                    for column_idx, column in enumerate(columns):
+                        data[
+                            lat_idx,
+                            lon_idx,
+                            alt_idx,
+                            itype_idx,
+                            column_idx
+                        ] = field[column]
+
+    return year_idx, data
 
 
 @typechecked

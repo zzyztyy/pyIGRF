@@ -101,12 +101,20 @@ def _compute_arrays(
     columns = ('D', 'I', 'H', 'X', 'Y', 'Z', 'F')
     columns = columns + tuple(f'{column}_SV' for column in columns)
 
-    _ = zarr.open(
-        data_fn, mode = 'w',
+    data = zarr.open(data_fn, mode = 'w')
+    field = data.create_dataset(
+        name = 'field',
         shape = (years.shape[0], lats.shape[0], lons.shape[0], alts.shape[0], len(itypes), len(columns)),
         chunks = (1, lats.shape[0], lons.shape[0], alts.shape[0], len(itypes), len(columns)),
         dtype = DTYPE,
     )
+    field.attrs['dims'] = ['years', 'lats', 'lons', 'alts', 'itypes', 'columns']
+    field.attrs['columns'] = list(columns)
+    data.create_dataset('years', data = years)
+    data.create_dataset('lats', data = lats)
+    data.create_dataset('lons', data = lons)
+    data.create_dataset('alts', data = alts)
+    data.create_dataset('itypes', data = np.array(itypes, dtype = 'u4'))
 
     if parallel:
 
@@ -185,7 +193,7 @@ def _compute_year_array(
                         ] = field[column]
 
     data = zarr.open(data_fn, mode = 'a')
-    data[year_idx, ...] = chunk
+    data['field'][year_idx, ...] = chunk
 
     return True
 

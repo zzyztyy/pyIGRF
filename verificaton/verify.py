@@ -26,6 +26,7 @@ def _compute(
     assert itype in (1, 2)
     assert 1900.0 <= year <= 2030.0
     assert -90.0 <= lat <= 90.0
+    assert 0.0 <= lon <= 360.0
 
     cmd_fn = os.path.join(FLD, CMD)
     proc = spawn(cmd_fn)

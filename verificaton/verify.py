@@ -3,6 +3,7 @@
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
 import os
+import shutil
 from subprocess import Popen
 from typing import Union
 from urllib.request import urlopen, Request
@@ -11,10 +12,11 @@ import numpy as np
 from pexpect import spawn
 from tqdm import tqdm
 from typeguard import typechecked
+import zarr
 
 
 CMD = "igrf13"
-DATA = "data.h5"
+DATA = "data.zarr"
 DTYPE = 'f4'
 FLD = os.path.dirname(__file__)
 URL = "https://www.ngdc.noaa.gov/IAGA/vmod/igrf13.f"
@@ -32,7 +34,7 @@ def _compute(
     assert itype in (1, 2)
     assert 1900.0 <= year <= 2030.0
     assert -90.0 <= lat <= 90.0
-    assert 0.0 <= lon <= 360.0
+    assert 0.0 <= lon < 360.0
 
     cmd_fn = os.path.join(FLD, CMD)
     proc = spawn(cmd_fn)
@@ -65,9 +67,13 @@ def _compute(
     proc.expect(r' Enter place name \(20 characters maximum\)')
     proc.sendline('')
 
-    proc.expect(r' Do you want values for another date \& position\? \(y/n\)')
-    reply = _parse_reply(proc.before.decode('utf-8'))
-    proc.sendline('n')
+    try:
+        proc.expect(r' Do you want values for another date \& position\? \(y/n\)')
+        reply = _parse_reply(proc.before.decode('utf-8'))
+        proc.sendline('n')
+    except Exception as e:
+        print(proc.before.decode('utf-8'))
+        raise ValueError(year, alt, lat, lon, itype) from e
 
     proc.wait()
 
@@ -76,34 +82,18 @@ def _compute(
 
 @typechecked
 def _compute_arrays(
-    fn: str,
-    year_step: float = 2.5,
-    lat_step: float = 20.0, # 4.5
-    lon_step: float = 20.0, # 4.5
-    alt_step: float = 50.0, # 25.0
+    data_fn: str,
+    year_step: float = 2.0, # 2.0
+    lat_step: float = 90.0, # 20.0 / 4.5
+    lon_step: float = 90.0, # 20.0 / 4.5
+    alt_step: float = 250.0, # 50.0 / 25.0
     parallel: bool = True,
 ):
-    """
-        'D': -0.8833333333333333,
-        'D_SV': 2.0,
-        'I': 13.333333333333334,
-        'I_SV': 7.0,
-        'H': 37151.0,
-        'H_SV': 43.0,
-        'X': 37144.0,
-        'X_SV': 43.0,
-        'Y': -723.0,
-        'Y_SV': 16.0,
-        'Z': 8804.0,
-        'Z_SV': 87.0,
-        'F': 38180.0,
-        'F_SV': 62.0,
-    """
 
     years = np.arange(1900.0, 2030.0 + year_step, year_step, dtype = DTYPE)
-    lats = np.arange(-90.0, 90.0 + lat_step, dtype = DTYPE)
-    lons = np.arange(0.0, 360.0 + lon_step, dtype = DTYPE)
-    alts = np.arange(-25.0, 400.0 + alt_step, alt_step, dtype = DTYPE)
+    lats = np.arange(-90.0, 90.0 + lat_step, lat_step, dtype = DTYPE)
+    lons = np.arange(0.0, 360.0, lon_step, dtype = DTYPE)
+    alts = np.arange(-100.0, 400.0 + alt_step, alt_step, dtype = DTYPE)
     itypes = (1, 2) # above sea level, from centre of Earth
 
     radius = 6371.2 # km
@@ -111,17 +101,20 @@ def _compute_arrays(
     columns = ('D', 'I', 'H', 'X', 'Y', 'Z', 'F')
     columns = columns + tuple(f'{column}_SV' for column in columns)
 
-    data = np.zeros(
-        (years.shape[0], lats.shape[0], lons.shape[0], alts.shape[0], len(itypes), len(columns)),
+    _ = zarr.open(
+        data_fn, mode = 'w',
+        shape = (years.shape[0], lats.shape[0], lons.shape[0], alts.shape[0], len(itypes), len(columns)),
+        chunks = (1, lats.shape[0], lons.shape[0], alts.shape[0], len(itypes), len(columns)),
         dtype = DTYPE,
     )
 
     if parallel:
 
-        with ProcessPoolExecutor(cpu_count()) as p:
+        with ProcessPoolExecutor(max_workers = cpu_count() * 10) as p:
             tasks = [
                 p.submit(
                     _compute_year_array,
+                    data_fn = data_fn,
                     year_idx = year_idx,
                     year = float(year),
                     lats = lats,
@@ -134,13 +127,13 @@ def _compute_arrays(
                 for year_idx, year in enumerate(years)
             ]
             for task in tqdm(tasks):
-                year_idx, year_data = task.result()
-                data[year_idx, ...] = year_data
+                _ = task.result()
 
     else:
 
         for year_idx, year in enumerate(tqdm(years)):
-            data[year_idx, ...] = _compute_year_array(
+            _ = _compute_year_array(
+                data_fn = data_fn,
                 year_idx = year_idx,
                 year = float(year),
                 lats = lats,
@@ -154,6 +147,7 @@ def _compute_arrays(
 
 @typechecked
 def _compute_year_array(
+    data_fn: str,
     year_idx: int,
     year: float,
     lats: np.array,
@@ -162,9 +156,9 @@ def _compute_year_array(
     itypes: tuple[int, int],
     columns: tuple[str, ...],
     radius: float,
-) -> tuple[int, np.array]:
+) -> bool:
 
-    data = np.zeros(
+    chunk = np.zeros(
         (lats.shape[0], lons.shape[0], alts.shape[0], len(itypes), len(columns)),
         dtype = DTYPE,
     )
@@ -182,7 +176,7 @@ def _compute_year_array(
                         itype = itype,
                     )
                     for column_idx, column in enumerate(columns):
-                        data[
+                        chunk[
                             lat_idx,
                             lon_idx,
                             alt_idx,
@@ -190,7 +184,10 @@ def _compute_year_array(
                             column_idx,
                         ] = field[column]
 
-    return year_idx, data
+    data = zarr.open(data_fn, mode = 'a')
+    data[year_idx, ...] = chunk
+
+    return True
 
 
 @typechecked
@@ -201,7 +198,11 @@ def _parse_reply(reply: str) -> dict[str, float]:
         for line in reply.split('\n')
         if len(line.strip()) > 0
     ]
-    lines.pop(0)
+    lines = [
+        line
+        for line in lines
+        if not line.startswith('This version') and not line.startswith('values for') and not line[0].isnumeric()
+    ]
 
     reply = {}
     for line in lines:
@@ -255,7 +256,7 @@ def _download(down_url: str, mode: str = "binary") -> Union[str, bytes]:
 
 
 @typechecked
-def main(clean: bool = False):
+def main(clean: bool = False, parallel: bool = True):
 
     src_fn = os.path.join(FLD, f'{CMD:s}.f')
     if clean and os.path.exists(src_fn):
@@ -273,9 +274,10 @@ def main(clean: bool = False):
 
     data_fn = os.path.join(FLD, DATA)
     if clean and os.path.exists(data_fn):
-        os.unlink(data_fn)
+        shutil.rmtree(data_fn)
+    # shutil.rmtree(data_fn) # HACK
     if not os.path.exists(data_fn):
-        _compute_arrays(data_fn)
+        _compute_arrays(data_fn, parallel = parallel)
 
 
 if __name__ == '__main__':

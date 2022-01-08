@@ -9,9 +9,12 @@ from ._typeguard import typechecked
 @typechecked
 def load_coeffs(filename: str) -> list[float]:
     """
-    load igrf12 coeffs from file
-    :param filename: file which save coeffs (str)
-    :return: g and h list one by one (list(float))
+    Loads IGRF coefficients from file.
+
+    Args:
+        filename : file containing coefficients
+    Returns:
+        g and h, one by one
     """
 
     with open(filename, mode = 'r', encoding = 'utf-8') as f:
@@ -39,9 +42,12 @@ GH = load_coeffs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data'
 @typechecked
 def get_coeffs(date: float) -> tuple[list, list]:
     """
-    :param gh: list from load_coeffs
-    :param date: float
-    :return: list: g, list: h
+    Processes coefficients
+
+    Args:
+        date : Years (Gregorian)
+    Returns:
+        g and h
     """
 
     if date < 1900.0 or date > 2030.0:

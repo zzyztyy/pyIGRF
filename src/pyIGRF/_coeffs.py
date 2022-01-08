@@ -58,12 +58,13 @@ def get_coeffs(year: float) -> tuple[list, list]:
         ), RuntimeWarning)
         return [], []
 
+    if year > 2025.0:
+        warnings.warn((
+            "This version of the IGRF is intended for use up to 2025.0."
+            f"Values for {year:f} will be computed but may be of reduced accuracy."
+        ), RuntimeWarning) # not adapt for the model but can calculate
+
     if year >= 2020.0:
-        if year > 2025.0:
-            warnings.warn((
-                "This version of the IGRF is intended for use up to 2025.0."
-                f"Values for {year:f} will be computed but may be of reduced accuracy."
-            ), RuntimeWarning) # not adapt for the model but can calculate
         t = year - 2020.0
         tc = 1.0
         # pointer for last coefficient in pen-ultimate set of MF coefficients...
@@ -86,6 +87,8 @@ def get_coeffs(year: float) -> tuple[list, list]:
             # 19 is the number of SH models that extend to degree 10
             ll = 120 * 19 + nc * ll
         tc = 1.0 - t
+
+    # Moving forward: nmx, ll, t, tc, nc
 
     g, h = [], []
     temp = ll - 1

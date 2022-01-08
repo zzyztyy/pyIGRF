@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+import itertools
 from multiprocessing import cpu_count
 import os
 import shutil
@@ -86,9 +87,9 @@ def _compute(
 def _compute_arrays(
     data_fn: str,
     year_step: float = 2.0, # 2.0
-    lat_step: float = 90.0, # 20.0 / 4.5
-    lon_step: float = 90.0, # 20.0 / 4.5
-    alt_step: float = 250.0, # 50.0 / 25.0
+    lat_step: float = 20.0, # 20.0 / 4.5
+    lon_step: float = 20.0, # 20.0 / 4.5
+    alt_step: float = 50.0, # 50.0 / 25.0
     parallel: bool = True,
 ):
 
@@ -121,7 +122,7 @@ def _compute_arrays(
 
     if parallel:
 
-        with ProcessPoolExecutor(max_workers = cpu_count() * 10) as p:
+        with ProcessPoolExecutor(max_workers = cpu_count()) as p:
             tasks = [
                 p.submit(
                     _compute_year_array,
@@ -174,29 +175,67 @@ def _compute_year_array(
         dtype = DTYPE,
     )
 
-    for lat_idx, lat in enumerate(lats):
-        for lon_idx, lon in enumerate(lons):
-            for alt_idx, alt in enumerate(alts):
-                for itype_idx, itype in enumerate(itypes):
-                    elevation = 0.0 if itype == 1 else radius
-                    field = _compute(
-                        year = year,
-                        lat = float(lat),
-                        lon = float(lon),
-                        alt = float(alt) + elevation,
-                        itype = itype,
-                    )
-                    for column_idx, column in enumerate(columns):
-                        chunk[
-                            lat_idx,
-                            lon_idx,
-                            alt_idx,
-                            itype_idx,
-                            column_idx,
-                        ] = field[column]
+    with ThreadPoolExecutor(max_workers = 30) as p:
+        tasks = [
+            p.submit(
+                _compute_llai_value,
+                lat_idx,
+                lat,
+                lon_idx,
+                lon,
+                alt_idx,
+                alt,
+                itype_idx,
+                itype,
+                year,
+                radius,
+                columns,
+                chunk,
+            )
+            for (lat_idx, lat), (lon_idx, lon), (alt_idx, alt), (itype_idx, itype) in itertools.product(
+                enumerate(lats), enumerate(lons), enumerate(alts), enumerate(itypes),
+            )
+        ]
+        for task in tasks:
+            _ = task.result()
 
     data = zarr.open(data_fn, mode = 'a')
     data['field'][year_idx, ...] = chunk
+
+    return True
+
+
+def _compute_llai_value(
+    lat_idx,
+    lat,
+    lon_idx,
+    lon,
+    alt_idx,
+    alt,
+    itype_idx,
+    itype,
+    year,
+    radius,
+    columns,
+    chunk,
+) -> bool:
+
+    elevation = 0.0 if itype == 1 else radius
+    field = _compute(
+        year = year,
+        lat = float(lat),
+        lon = float(lon),
+        alt = float(alt) + elevation,
+        itype = itype,
+    )
+    for column_idx, column in enumerate(columns):
+        chunk[
+            lat_idx,
+            lon_idx,
+            alt_idx,
+            itype_idx,
+            column_idx,
+        ] = field[column]
 
     return True
 
@@ -366,7 +405,7 @@ def _download(down_url: str, mode: str = "binary") -> Union[str, bytes]:
 
 
 @typechecked
-def main(clean: bool = False, parallel: bool = True):
+def main(clean: bool = True, parallel: bool = True):
 
     src_fn = os.path.join(FLD, f'{CMD:s}.f')
     if clean and os.path.exists(src_fn):
@@ -385,7 +424,6 @@ def main(clean: bool = False, parallel: bool = True):
     data_fn = os.path.join(FLD, DATA)
     if clean and os.path.exists(data_fn):
         shutil.rmtree(data_fn)
-    # shutil.rmtree(data_fn) # HACK
     if not os.path.exists(data_fn):
         _compute_arrays(data_fn, parallel = parallel)
 

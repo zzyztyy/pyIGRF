@@ -86,10 +86,10 @@ def _compute(
 @typechecked
 def _compute_arrays(
     data_fn: str,
-    year_step: float = 2.0, # 2.0
-    lat_step: float = 20.0, # 20.0 / 4.5
-    lon_step: float = 20.0, # 20.0 / 4.5
-    alt_step: float = 50.0, # 50.0 / 25.0
+    year_step: float = 0.5, # 2.0
+    lat_step: float = 7.5, # 20.0 / 4.5
+    lon_step: float = 7.5, # 20.0 / 4.5
+    alt_step: float = 49.5, # 50.0 / 25.0
     parallel: bool = True,
 ):
 
@@ -405,7 +405,7 @@ def _download(down_url: str, mode: str = "binary") -> Union[str, bytes]:
 
 
 @typechecked
-def main(clean: bool = True, parallel: bool = True):
+def main(clean: bool = False, parallel: bool = True):
 
     src_fn = os.path.join(FLD, f'{CMD:s}.f')
     if clean and os.path.exists(src_fn):

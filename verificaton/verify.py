@@ -14,6 +14,8 @@ from tqdm import tqdm
 from typeguard import typechecked
 import zarr
 
+from pyIGRF import get_syn
+
 
 CMD = "igrf13"
 DATA = "data.zarr"
@@ -110,6 +112,7 @@ def _compute_arrays(
     )
     field.attrs['dims'] = ['years', 'lats', 'lons', 'alts', 'itypes', 'columns']
     field.attrs['columns'] = list(columns)
+    field.attrs['radius'] = radius
     data.create_dataset('years', data = years)
     data.create_dataset('lats', data = lats)
     data.create_dataset('lons', data = lons)
@@ -194,6 +197,105 @@ def _compute_year_array(
 
     data = zarr.open(data_fn, mode = 'a')
     data['field'][year_idx, ...] = chunk
+
+    return True
+
+
+@typechecked
+def _verify_arrays(
+    data_fn: str,
+    parallel: bool = True,
+):
+
+    data = zarr.open(data_fn, mode = 'r')
+
+    years = data['years'][...]
+    lats = data['lats'][...]
+    lons = data['lons'][...]
+    alts = data['alts'][...]
+    itypes = tuple(int(number) for number in data['itypes'][...]) # above sea level, from centre of Earth
+    radius = data['field'].attrs['radius'] # km
+    columns = tuple(data['field'].attrs['columns'])
+
+    if parallel:
+
+        with ProcessPoolExecutor(max_workers = cpu_count()) as p:
+            tasks = [
+                p.submit(
+                    _verify_year_array,
+                    data_fn = data_fn,
+                    year_idx = year_idx,
+                    year = float(year),
+                    lats = lats,
+                    lons = lons,
+                    alts = alts,
+                    itypes = itypes,
+                    columns = columns,
+                    radius = radius,
+                )
+                for year_idx, year in enumerate(years)
+            ]
+            for task in tqdm(tasks):
+                _ = task.result()
+
+    else:
+
+        for year_idx, year in enumerate(tqdm(years)):
+            _ = _verify_year_array(
+                data_fn = data_fn,
+                year_idx = year_idx,
+                year = float(year),
+                lats = lats,
+                lons = lons,
+                alts = alts,
+                itypes = itypes,
+                columns = columns,
+                radius = radius,
+            )
+
+
+@typechecked
+def _verify_year_array(
+    data_fn: str,
+    year_idx: int,
+    year: float,
+    lats: np.array,
+    lons: np.array,
+    alts: np.array,
+    itypes: tuple[int, int],
+    columns: tuple[str, ...],
+    radius: float,
+) -> bool:
+
+    data = zarr.open(data_fn, mode = 'r')
+    chunk = data['field'][year_idx, ...]
+
+    x_idx = columns.index('X')
+    y_idx = columns.index('Y')
+    z_idx = columns.index('Z')
+    f_idx = columns.index('F')
+
+    for lat_idx, lat in enumerate(lats):
+        for lon_idx, lon in enumerate(lons):
+            for alt_idx, alt in enumerate(alts):
+                for itype_idx, itype in enumerate(itypes):
+                    elevation = 0.0 if itype == 1 else radius
+                    x, y, z, f = get_syn(
+                        year = year,
+                        lat = float(lat),
+                        elong = float(lon),
+                        alt = float(alt) + elevation,
+                        itype = itype,
+                    )
+                    expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [x_idx, y_idx, z_idx, f_idx]]
+                    computed = np.array((x, y, z, f), dtype = chunk.dtype) # .round()
+                    if not np.allclose(expected, computed, atol = 1.0):
+                        raise ValueError((
+                            f"year={year:f} lat={lat:f} lon={lon:f} alt={alt:f} itype={itype:d}\n"
+                            f"expected   = {repr(expected):s}\n"
+                            f"computed_r = {repr(computed.round()):s}\n"
+                            f"computed   = {repr(computed):s}"
+                        ))
 
     return True
 
@@ -286,6 +388,8 @@ def main(clean: bool = False, parallel: bool = True):
     # shutil.rmtree(data_fn) # HACK
     if not os.path.exists(data_fn):
         _compute_arrays(data_fn, parallel = parallel)
+
+    _verify_arrays(data_fn, parallel = parallel)
 
 
 if __name__ == '__main__':

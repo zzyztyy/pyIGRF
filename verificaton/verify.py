@@ -7,7 +7,6 @@ from subprocess import Popen
 from typing import Union
 from urllib.request import urlopen, Request
 
-import h5py
 import numpy as np
 from pexpect import spawn
 from tqdm import tqdm
@@ -53,7 +52,10 @@ def _compute(
     proc.expect(' Enter date in years A.D.')
     proc.sendline(f'{year:0.03f}')
 
-    proc.expect(' Enter altitude in km')
+    if itype == 1:
+        proc.expect(' Enter altitude in km')
+    else:
+        proc.expect(r' Enter radial distance in km \(>3485 km\)')
     proc.sendline(f'{alt:0.03f}')
 
     proc.expect(' Enter latitude & longitude in decimal degrees')
@@ -76,9 +78,10 @@ def _compute(
 def _compute_arrays(
     fn: str,
     year_step: float = 2.5,
-    lat_step: float = 4.5,
-    lon_step: float = 4.5,
-    alt_step: float = 25.0,
+    lat_step: float = 20.0, # 4.5
+    lon_step: float = 20.0, # 4.5
+    alt_step: float = 50.0, # 25.0
+    parallel: bool = True,
 ):
     """
         'D': -0.8833333333333333,
@@ -113,10 +116,31 @@ def _compute_arrays(
         dtype = DTYPE,
     )
 
-    with ProcessPoolExecutor(cpu_count() // 2) as p:
-        tasks = [
-            p.submit(
-                _compute_year_array,
+    if parallel:
+
+        with ProcessPoolExecutor(cpu_count() // 2) as p:
+            tasks = [
+                p.submit(
+                    _compute_year_array,
+                    year_idx = year_idx,
+                    year = float(year),
+                    lats = lats,
+                    lons = lons,
+                    alts = alts,
+                    itypes = itypes,
+                    columns = columns,
+                    radius = radius,
+                )
+                for year_idx, year in enumerate(years)
+            ]
+            for task in tqdm(tasks):
+                year_idx, year_data = task.result()
+                data[year_idx, ...] = year_data
+
+    else:
+
+        for year_idx, year in enumerate(tqdm(years)):
+            data[year_idx, ...] = _compute_year_array(
                 year_idx = year_idx,
                 year = float(year),
                 lats = lats,
@@ -126,11 +150,6 @@ def _compute_arrays(
                 columns = columns,
                 radius = radius,
             )
-            for year_idx, year in enumerate(years)
-        ]
-        for task in tqdm(tasks):
-            year_idx, year_data = task.result()
-            data[year_idx, ...] = year_data
 
 
 @typechecked
@@ -154,7 +173,7 @@ def _compute_year_array(
         for lon_idx, lon in enumerate(lons):
             for alt_idx, alt in enumerate(alts):
                 for itype_idx, itype in enumerate(itypes):
-                    elevation = 0 if itype == 1 else radius
+                    elevation = 0.0 if itype == 1 else radius
                     field = _compute(
                         year = year,
                         lat = float(lat),
@@ -168,7 +187,7 @@ def _compute_year_array(
                             lon_idx,
                             alt_idx,
                             itype_idx,
-                            column_idx
+                            column_idx,
                         ] = field[column]
 
     return year_idx, data

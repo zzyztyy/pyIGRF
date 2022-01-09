@@ -1,3 +1,7 @@
 *.egg-info/
 __pycache__/
 .pytest_cache/
+igrf13
+igrf13.f
+*.zarr/
+benchmark*.png

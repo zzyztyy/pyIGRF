@@ -3,8 +3,8 @@
 from math import sin, cos, sqrt, atan2, pi
 import warnings
 
-from ._loadcoeffs import get_coeffs
-from ._typeguard import typechecked
+from .._debug import typechecked, DEBUG
+from ._coeffs import get_coeffs
 
 
 FACT = 180.0 / pi
@@ -17,11 +17,12 @@ def geodetic2geocentric(
 ) -> tuple[float, float, float]:
     """
     Conversion from geodetic to geocentric coordinates by using the WGS84 spheroid.
-    :param theta: colatitude (float, rad)
-    :param alt: altitude (float, km)
-    :return gccolat: geocentric colatitude (float, rad)
-            d: gccolat minus theta (float, rad)
-            r: geocentric radius (float, km)
+
+    Args:
+        theta : colatitude [rad]
+        alt : altitude [km]
+    Returns:
+        geocentric colatitude (gccolat) [rad], gccolat minus theta (d) [rad], geocentric radius (r) [km]
     """
 
     ct = cos(theta)
@@ -45,64 +46,64 @@ def geodetic2geocentric(
 
 
 @typechecked
-def igrf12syn(
-    date: float,
+def get_syn(
+    year: float,
     itype: int,
-    alt: float,
-    lat: float,
-    elong: float,
-) -> tuple[float, float, float, float]:
+    alt: float, # double!
+    lat: float, # double!
+    elong: float, # double!
+) -> tuple[float, float, float, float]: # TODO check 12th gen vs 13th gen synthesis routine
     """
-     This is a synthesis routine for the 12th generation IGRF as agreed
-     in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
-     2020.0 inclusive. Values for dates from 1945.0 to 2010.0 inclusive are
-     definitive, otherwise they are non-definitive.
-   INPUT
-     date  = year A.D. Must be greater than or equal to 1900.0 and
-             less than or equal to 2025.0. Warning message is given
-             for dates greater than 2020.0. Must be double precision.
-     itype = 1 if geodetic (spheroid)
-     itype = 2 if geocentric (sphere)
-     alt   = height in km above sea level if itype = 1
-           = distance from centre of Earth in km if itype = 2 (>3485 km)
-     lat = latitude (-90~90)
-     elong = east-longitude (0-360)
-     alt, colat and elong must be double precision.
-   OUTPUT
-     x     = north component (nT) if isv = 0, nT/year if isv = 1
-     y     = east component (nT) if isv = 0, nT/year if isv = 1
-     z     = vertical component (nT) if isv = 0, nT/year if isv = 1
-     f     = total intensity (nT) if isv = 0, rubbish if isv = 1
+    This is a synthesis routine for the 12th generation IGRF as agreed
+    in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
+    2020.0 inclusive. Values for dates from 1945.0 to 2010.0 inclusive are
+    definitive, otherwise they are non-definitive.
 
-     To get the other geomagnetic elements (D, I, H and secular
-     variations dD, dH, dI and dF) use routines ptoc and ptocsv.
+    To get the other geomagnetic elements (D, I, H and secular
+    variations dD, dH, dI and dF) use routines ptoc and ptocsv.
 
-     Adapted from 8th generation version to include new maximum degree for
-     main-field models for 2000.0 and onwards and use WGS84 spheroid instead
-     of International Astronomical Union 1966 spheroid as recommended by IAGA
-     in July 2003. Reference radius remains as 6371.2 km - it is NOT the mean
-     radius (= 6371.0 km) but 6371.2 km is what is used in determining the
-     coefficients. Adaptation by Susan Macmillan, August 2003 (for
-     9th generation), December 2004, December 2009, December 2014.
+    Adapted from 8th generation version to include new maximum degree for
+    main-field models for 2000.0 and onwards and use WGS84 spheroid instead
+    of International Astronomical Union 1966 spheroid as recommended by IAGA
+    in July 2003. Reference radius remains as 6371.2 km - it is NOT the mean
+    radius (= 6371.0 km) but 6371.2 km is what is used in determining the
+    coefficients. Adaptation by Susan Macmillan, August 2003 (for
+    9th generation), December 2004, December 2009, December 2014.
 
-     Coefficients at 1995.0 incorrectly rounded (rounded up instead of
-     to even) included as these are the coefficients published in Excel
-     spreadsheet July 2005.
+    Coefficients at 1995.0 incorrectly rounded (rounded up instead of
+    to even) included as these are the coefficients published in Excel
+    spreadsheet July 2005.
+
+    Args:
+        year : year A.D. Must be greater than or equal to 1900.0 and
+            less than or equal to 2025.0. Warning message is given
+            for dates greater than 2020.0. Must be double precision.
+        itype : 1 if geodetic (spheroid), 2 if geocentric (sphere)
+        alt : height in km above sea level if itype == 1,
+            distance from centre of Earth in km if itype == 2 (>3485 km)
+        lat : latitude (-90 to 90)
+        elong : east-longitude (0 to 360)
+    Returns:
+        x, north component [nT] if isv == 0, [nT/year] if isv == 1;
+        y, east component [nT] if isv == 0, [nT/year] if isv == 1;
+        z, vertical component [nT] if isv == 0, [nT/year] if isv == 1;
+        f, total intensity [nT] if isv == 0, [rubbish] if isv == 1
     """
 
     p, q, cl, sl = [0.] * 105, [0.] * 105, [0.] * 13, [0.] * 13
     x, y, z = 0., 0., 0.
 
-    if date < 1900.0 or date > 2025.0:
+    if year < 1900.0 or year > 2030.0:
         f = 1.0
-        warnings.warn((
-            f"This subroutine will not work with a date of {date:f}. "
-            "Date must be in the range 1900.0 <= date <= 2025.0. "
-            "On return f = 1.0, x = y = z = 0"
-        ), RuntimeWarning)
+        if DEBUG:
+            warnings.warn((
+                f"This subroutine will not work with a year of {year:f}. "
+                "Date must be in the range 1900.0 <= year <= 2030.0. "
+                "On return f = 1.0, x = y = z = 0"
+            ), RuntimeWarning)
         return x, y, z, f
 
-    g, h = get_coeffs(date)
+    g, h = get_coeffs(year)
     nmx = len(g) - 1
     kmx = (nmx + 1) * (nmx + 2) // 2 + 1
 
@@ -137,7 +138,7 @@ def igrf12syn(
     q[0] = 0.0
     q[2] = ct
 
-    fn, gn = n, n-1
+    fn, gn = n, n - 1
     for k in range(2, kmx):
         if n < m:
             m = 0

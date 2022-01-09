@@ -15,7 +15,7 @@ setup(
     version = "0.3.4",
     author = "pyIGRF authors",
     author_email = "ernst@pleiszenburg.de",
-    description = "IGRF-13 Model by Python",
+    description = "IGRF-13 Model in Python",
     long_description = readme,
     long_description_content_type = "text/markdown",
     license = "MIT",
@@ -24,10 +24,19 @@ setup(
     package_dir = {"": SRC_DIR},
     install_requires = [],
     extras_require = {
+        "jited": [
+            "numba",
+            "numpy",
+        ],
         "dev": [
             "goto-statement",
+            "matplotlib",
+            "numpy",
+            "pexpect",
+            "tqdm",
             "typeguard",
-        ]
+            "zarr",
+        ],
     },
     package_data = {'': ['src/igrf13coeffs.txt']}
 )

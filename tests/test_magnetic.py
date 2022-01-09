@@ -2,14 +2,25 @@
 
 from math import isclose
 
+import pytest
+
 from pyIGRF.pure import (
-    get_coeffs,
-    get_value,
-    get_variation,
+    get_coeffs as pure_get_coeffs,
+    get_value as pure_get_value,
+    get_variation as pure_get_variation,
+)
+from pyIGRF.jited import (
+    get_coeffs as jited_get_coeffs,
+    get_value as jited_get_value,
+    get_variation as jited_get_variation,
 )
 
 
-def test_doc():
+@pytest.mark.parametrize(
+    "get_value, get_variation",
+    [(pure_get_value, pure_get_variation), (jited_get_value, jited_get_variation)]
+)
+def test_doc(get_value, get_variation):
 
     doc = get_value.__doc__
     assert isinstance(doc, str)
@@ -20,7 +31,11 @@ def test_doc():
     assert len(doc) > 0
 
 
-def test_compute():
+@pytest.mark.parametrize(
+    "get_value, get_variation",
+    [(pure_get_value, pure_get_variation), (jited_get_value, jited_get_variation)]
+)
+def test_compute(get_value, get_variation):
 
     date = 1999
 
@@ -54,7 +69,11 @@ def test_compute():
     assert all(isclose(a, b) for a, b in zip(expected_variation, computed_variation))
 
 
-def test_coeffs():
+@pytest.mark.parametrize(
+    "get_coeffs",
+    [pure_get_coeffs, jited_get_coeffs]
+)
+def test_coeffs(get_coeffs):
 
     date = 1999
 

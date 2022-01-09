@@ -4,3 +4,4 @@ __pycache__/
 igrf13
 igrf13.f
 *.zarr/
+benchmark*.png

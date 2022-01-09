@@ -2,18 +2,23 @@
 
 import gc
 import itertools
+import os
 from time import time_ns
 
+import matplotlib.pyplot as plt
+
 import numpy as np
-# from tqdm import tqdm
+from tqdm import tqdm
 from typeguard import typechecked
 
 from pyIGRF import get_syn
 
 
 DTYPE = 'f4'
+FLD = os.path.dirname(__file__)
 
 
+@typechecked
 def _single_run(
     year: float,
     iterations: int,
@@ -47,16 +52,33 @@ def _single_run(
     return (stop - start) * 1e-9
 
 
-@typechecked
 def main():
 
     years = [1910.0, 1940.0, 1980.0, 2000.0, 2020.0, 2025.0]
-    iterations = [10 ** exp for exp in range(1, 6)]
+    iterations = [10 ** exp for exp in range(1, 5)]
     itypes = (1, 2)
 
-    for year, iteration, itype in itertools.product(years, iterations, itypes):
-        duration = _single_run(year = year, iterations = iteration, itype = itype)
-        print(f'year={year:f} iteration={iteration:f} itype={itype:d} duration={duration:f}s')
+    fig, ax = plt.subplots(figsize = (10, 10), dpi = 150)
+
+    for year, itype in tqdm(itertools.product(years, itypes), total = len(years) * len(itypes)):
+
+        durations = [
+            _single_run(year = year, iterations = iteration, itype = itype) / iteration
+            for iteration in iterations
+        ]
+
+        ax.loglog(
+            iterations, durations, label = f'{year:.02f} | {itype:d}',
+            linestyle = 'solid' if itype == 1 else 'dashed'
+        )
+
+    ax.legend()
+    ax.set_xlabel('iterations')
+    ax.set_ylabel('time per itertation [s]')
+    ax.grid()
+
+    fig.tight_layout()
+    fig.savefig(os.path.join(FLD, 'benchmark_scalar_base.png'))
 
 
 if __name__ == '__main__':

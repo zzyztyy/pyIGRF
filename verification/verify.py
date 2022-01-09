@@ -331,13 +331,17 @@ def _verify_year_array(
                     if not np.allclose(expected, computed, atol = 0.5):
                         raise ValueError((
                             f"year={year:f} lat={lat:f} lon={lon:f} alt={alt:f} itype={itype:d}\n"
-                            f"expected   = {repr(expected):s}\n"
-                            f"computed_r = {repr(computed.round()):s}\n"
-                            f"computed   = {repr(computed):s}"
+                            f"expected   = {_to_str(expected):s}\n"
+                            f"computed_r = {_to_str(computed.round()):s}\n"
+                            f"computed   = {_to_str(computed):s}"
                         ))
 
     return True
 
+
+def _to_str(data: np.ndarray) -> str:
+
+    return '[' + ' '.join([f'{number:10.03f}' for number in data]) + ']'
 
 @typechecked
 def _parse_reply(reply: str) -> dict[str, float]:

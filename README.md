@@ -19,19 +19,19 @@ pip install git+https://github.com/pleiszenburg/pyIGRF.git@develop
 First import the package:
 
 ```python
-import pyIGRF
+from pyIGRF.pure import get_value, get_variation
 ```
 
 You can calculate the magnetic field's intensity:
 
 ```python
-pyIGRF.get_value(lat, lon, alt, date)
+get_value(lat, lon, alt, year)
 ```
 
 You can calculate the annual variation of the magnetic field's intensity:
 
 ```python
-pyIGRF.get_variation(lat, lon, alt, date)
+get_variation(lat, lon, alt, year)
 ```
 
 The return value is a tuple of seven floating point numbers representing the local magnetic field:

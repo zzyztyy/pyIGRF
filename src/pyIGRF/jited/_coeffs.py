@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import warnings
+import numba as nb
+import numpy as np
 
 from .._coeffs import GH
-from .._debug import typechecked, DEBUG
 
 
-@typechecked
-def get_coeffs(year: float) -> tuple[list, list]:
+GH = np.array(GH, dtype = 'f8')
+
+
+@nb.njit('f8[:,:,:](f8)')
+def get_coeffs(year):
     """
     Processes coefficients
 
@@ -18,19 +21,11 @@ def get_coeffs(year: float) -> tuple[list, list]:
     """
 
     if year < 1900.0 or year > 2030.0:
-        if DEBUG:
-            warnings.warn((
-                f"Will not work with a date of {year:f}. "
-                "Date must be in the range 1900.0 <= year <= 2030.0. "
-                "On return [], []"
-            ), RuntimeWarning)
-        return [], []
-
-    if year > 2025.0 and DEBUG:
-        warnings.warn((
-            "This version of the IGRF is intended for use up to 2025.0 ."
-            f"Values for {year:f} will be computed but may be of reduced accuracy."
-        ), RuntimeWarning) # not adapt for the model but can calculate
+        return np.zeros((
+            2, # g/h
+            0,
+            0,
+        ), dtype = 'f8')
 
     if year >= 2020.0:
         t = year - 2020.0
@@ -58,23 +53,30 @@ def get_coeffs(year: float) -> tuple[list, list]:
 
     # Moving forward: nmx, ll, t, tc, nc
 
-    g, h = [], []
+    gh = np.zeros((
+        2, # g/h
+        nmx + 1,
+        nmx + 1,
+    ), dtype = 'f8')
+
     temp = ll - 1
     for n in range(nmx + 1):
-        gsub = []
-        hsub = []
+        # gsub = []
+        # hsub = []
         if n == 0:
-            gsub.append(None)
+            # gsub.append(np.nan)
+            gh[0, n, 0] = np.nan
+            offset = 1
+        else:
+            offset = 0
         for m in range(n + 1):
             if m != 0:
-                gsub.append(tc * GH[temp] + t * GH[temp + nc])
-                hsub.append(tc * GH[temp + 1] + t * GH[temp + nc + 1])
+                gh[0, n, m+offset] = tc * GH[temp] + t * GH[temp + nc]
+                gh[1, n, m] = tc * GH[temp + 1] + t * GH[temp + nc + 1]
                 temp += 2
             else:
-                gsub.append(tc * GH[temp] + t * GH[temp + nc])
-                hsub.append(None)
+                gh[0, n, m+offset] = tc * GH[temp] + t * GH[temp + nc]
+                gh[1, n, m] = np.nan
                 temp += 1
-        g.append(gsub)
-        h.append(hsub)
 
-    return g, h
+    return gh

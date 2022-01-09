@@ -344,6 +344,7 @@ def _to_str(data: np.ndarray) -> str:
 
     return '[' + ' '.join([f'{number:10.03f}' for number in data]) + ']'
 
+
 @typechecked
 def _parse_reply(reply: str) -> dict[str, float]:
 

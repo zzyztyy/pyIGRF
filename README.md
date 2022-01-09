@@ -4,7 +4,7 @@
 
 ## What is pyIGRF?
 
-`pyIGRF` is a Python package offering the IGRF-13 (International Geomagnetic Reference Field) model. You can use it to calculate the magnetic field's intensity and to transform coordinates between GeoGraphical and GeoMagnetic. The package does not require any Fortran compiler - it is pure Python.
+`pyIGRF` is a Python package offering the IGRF-13 (International Geomagnetic Reference Field) model. You can use it to calculate the magnetic field's intensity and to transform coordinates between GeoGraphical and GeoMagnetic. The package offers different implementations, pure Python and Python JIT-compiled via `numba`.
 
 ## How to Install?
 
@@ -16,10 +16,12 @@ pip install git+https://github.com/pleiszenburg/pyIGRF.git@develop
 
 ## How to Use it?
 
-First import the package:
+First import the package, either as pure Python or JIT-compiled via `numba`:
 
 ```python
 from pyIGRF.pure import get_value, get_variation
+# or
+from pyIGRF.jited import get_value, get_variation
 ```
 
 You can calculate the magnetic field's intensity:

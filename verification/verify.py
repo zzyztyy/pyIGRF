@@ -261,7 +261,7 @@ def _verify_syn_arrays(
         with ProcessPoolExecutor(max_workers = cpu_count()) as p:
             tasks = [
                 p.submit(
-                    _verify_year_array,
+                    _verify_syn_year_array,
                     data_fn = data_fn,
                     year_idx = year_idx,
                     year = float(year),

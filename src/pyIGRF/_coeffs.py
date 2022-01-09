@@ -30,7 +30,7 @@ def load_coeffs(filename: str) -> list[float]:
         stop = 120 if idx < 19 else None
         for coeff in column[:stop]:
             gh.append(coeff)
-    gh.append(0)
+    gh.append(0.0)
 
     return gh
 

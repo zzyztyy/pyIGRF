@@ -308,7 +308,7 @@ def _verify_year_array(
     itypes: tuple[int, int],
     columns: tuple[str, ...],
     radius: float,
-    atol: float = 0.7, # nT
+    atol: float = 2.0, # 0.7, # nT
 ) -> bool:
 
     data = zarr.open(data_fn, mode = 'r')
@@ -349,7 +349,8 @@ def _verify_year_array(
                 f"SYN year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
                 f"              {_columns_to_str(['X', 'Y', 'Z', 'F']):s}\n"
                 f" expected   = {_array_to_str(expected):s}\n"
-                f" computed   = {_array_to_str(computed):s}"
+                f" computed   = {_array_to_str(computed):s}\n"
+                f" diff       = {_array_to_str(np.abs(computed-expected)):s}"
             ))
 
         if itype != 1:
@@ -368,8 +369,12 @@ def _verify_year_array(
                 f"VALUE year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
                 f"              {_columns_to_str(['D', 'I', 'H', 'X', 'Y', 'Z', 'F']):s}\n"
                 f" expected   = {_array_to_str(expected):s}\n"
-                f" computed   = {_array_to_str(computed):s}"
+                f" computed   = {_array_to_str(computed):s}\n"
+                f" diff       = {_array_to_str(np.abs(computed-expected)):s}"
             ))
+
+        if year < 1901.0 or year > 2029.0:
+            continue
 
         dd, di, dh, dx, dy, dz, df = get_variation(
             lat = float(lat),
@@ -384,7 +389,8 @@ def _verify_year_array(
                 f"VARIATION year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
                 f"              {_columns_to_str(['D', 'I', 'H', 'X', 'Y', 'Z', 'F']):s}\n"
                 f" expected   = {_array_to_str(expected):s}\n"
-                f" computed   = {_array_to_str(computed):s}"
+                f" computed   = {_array_to_str(computed):s}\n"
+                f" diff       = {_array_to_str(np.abs(computed-expected)):s}"
             ))
 
     return True

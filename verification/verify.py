@@ -371,18 +371,18 @@ def _verify_year_array(
                 f" computed   = {_array_to_str(computed):s}"
             ))
 
-        dd, ds, dh, dx, dy, dz, df = get_variation(
+        dd, di, dh, dx, dy, dz, df = get_variation(
             lat = float(lat),
             lon = float(lon),
             alt = float(alt),
             year = year,
         )
         expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [dsv_idx, isv_idx, hsv_idx, xsv_idx, ysv_idx, zsv_idx, fsv_idx]]
-        computed = np.array((dd, ds, dh, dx, dy, dz, df), dtype = chunk.dtype)
+        computed = np.array((dd, di, dh, dx, dy, dz, df), dtype = chunk.dtype)
         if not np.allclose(expected, computed, atol = atol):
             raise ValueError((
                 f"VARIATION year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
-                f"              {_columns_to_str(['D', 'S', 'H', 'X', 'Y', 'Z', 'F']):s}\n"
+                f"              {_columns_to_str(['D', 'I', 'H', 'X', 'Y', 'Z', 'F']):s}\n"
                 f" expected   = {_array_to_str(expected):s}\n"
                 f" computed   = {_array_to_str(computed):s}"
             ))

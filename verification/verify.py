@@ -339,6 +339,7 @@ def _verify_year_array(
     return True
 
 
+@typechecked
 def _to_str(data: np.ndarray) -> str:
 
     return '[' + ' '.join([f'{number:10.03f}' for number in data]) + ']'

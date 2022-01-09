@@ -4,6 +4,7 @@ import gc
 import itertools
 import os
 from time import time_ns
+from typing import Callable
 
 import matplotlib.pyplot as plt
 
@@ -11,7 +12,8 @@ import numpy as np
 from tqdm import tqdm
 from typeguard import typechecked
 
-from pyIGRF.pure import get_syn
+from pyIGRF.pure import get_syn as pure_get_syn
+from pyIGRF.jited import get_syn as jited_get_syn
 
 
 DTYPE = 'f4'
@@ -20,6 +22,7 @@ FLD = os.path.dirname(__file__)
 
 @typechecked
 def _single_run(
+    get_syn: Callable,
     year: float,
     iterations: int,
     itype: int,
@@ -54,7 +57,7 @@ def _single_run(
 
 def main():
 
-    _, _, _, _ = get_syn(
+    _, _, _, _ = jited_get_syn(
         year = 1900.0,
         lat = 0.0,
         elong = 0.0,
@@ -65,18 +68,24 @@ def main():
     years = [1910.0, 1940.0, 1980.0, 2000.0, 2020.0, 2025.0]
     iterations = [10 ** exp for exp in range(1, 5)]
     itypes = (1, 2)
+    funcs = (
+        ('pure', pure_get_syn),
+        ('jited', jited_get_syn),
+    )
 
     fig, ax = plt.subplots(figsize = (10, 10), dpi = 150)
 
-    for year, itype in tqdm(itertools.product(years, itypes), total = len(years) * len(itypes)):
+    for year, itype, (name, get_syn) in tqdm(itertools.product(
+        years, itypes, funcs,
+    ), total = len(years) * len(itypes) * len(funcs)):
 
         durations = [
-            _single_run(year = year, iterations = iteration, itype = itype) / iteration
+            _single_run(get_syn = get_syn, year = year, iterations = iteration, itype = itype) / iteration
             for iteration in iterations
         ]
 
         ax.loglog(
-            iterations, durations, label = f'{year:.02f} | {itype:d}',
+            iterations, durations, label = f'{name:s} | {year:.02f} | {itype:d}',
             linestyle = 'solid' if itype == 1 else 'dashed'
         )
 
@@ -86,7 +95,7 @@ def main():
     ax.grid()
 
     fig.tight_layout()
-    fig.savefig(os.path.join(FLD, 'benchmark_scalar_base.png'))
+    fig.savefig(os.path.join(FLD, 'benchmark_scalar.png'))
 
 
 if __name__ == '__main__':

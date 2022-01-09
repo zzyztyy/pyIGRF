@@ -18,7 +18,7 @@ import zarr
 from pyIGRF import (
     get_syn,
     get_value,
-    get_variation,
+    # get_variation,
 )
 
 

@@ -15,7 +15,7 @@ from tqdm import tqdm
 from typeguard import typechecked
 import zarr
 
-from pyIGRF import (
+from pyIGRF.pure import (
     get_syn,
     get_value,
     # get_variation,

@@ -6,18 +6,7 @@
 
 __author__ = 'pyIGRF authors'
 
-from ._calculate import (
-    geodetic2geocentric,
-    get_syn,
-)
-
 from ._coeffs import (
     GH,
-    get_coeffs,
     load_coeffs,
-)
-
-from ._value import (
-    get_value,
-    get_variation,
 )

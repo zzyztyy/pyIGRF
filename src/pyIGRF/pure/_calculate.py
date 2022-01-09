@@ -3,8 +3,8 @@
 from math import sin, cos, sqrt, atan2, pi
 import warnings
 
+from .._debug import typechecked, DEBUG
 from ._coeffs import get_coeffs
-from ._debug import typechecked, DEBUG
 
 
 FACT = 180.0 / pi

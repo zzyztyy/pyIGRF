@@ -11,7 +11,7 @@ import numpy as np
 from tqdm import tqdm
 from typeguard import typechecked
 
-from pyIGRF import get_syn
+from pyIGRF.pure import get_syn
 
 
 DTYPE = 'f4'

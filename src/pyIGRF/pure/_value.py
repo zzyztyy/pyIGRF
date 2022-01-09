@@ -2,8 +2,8 @@
 
 from math import atan2, sqrt, pi
 
+from .._debug import typechecked
 from ._calculate import get_syn
-from ._debug import typechecked
 
 
 FACT = 180.0 / pi

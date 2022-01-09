@@ -2,16 +2,20 @@
 
 from math import isclose
 
-import pyIGRF
+from pyIGRF.pure import (
+    get_coeffs,
+    get_value,
+    get_variation,
+)
 
 
 def test_doc():
 
-    doc = pyIGRF.get_value.__doc__
+    doc = get_value.__doc__
     assert isinstance(doc, str)
     assert len(doc) > 0
 
-    doc = pyIGRF.get_variation.__doc__
+    doc = get_variation.__doc__
     assert isinstance(doc, str)
     assert len(doc) > 0
 
@@ -43,8 +47,8 @@ def test_compute():
         15.49444079804009,
     )
 
-    computed_value = pyIGRF.get_value(lat, lon, alt, date)
-    computed_variation = pyIGRF.get_variation(lat, lon, alt, date)
+    computed_value = get_value(lat, lon, alt, date)
+    computed_variation = get_variation(lat, lon, alt, date)
 
     assert all(isclose(a, b) for a, b in zip(expected_value, computed_value))
     assert all(isclose(a, b) for a, b in zip(expected_variation, computed_variation))
@@ -54,7 +58,7 @@ def test_coeffs():
 
     date = 1999
 
-    g, h = pyIGRF.get_coeffs(date)
+    g, h = get_coeffs(date)
 
     assert len(g) == 14
     assert len(h) == 14

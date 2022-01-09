@@ -15,7 +15,11 @@ from tqdm import tqdm
 from typeguard import typechecked
 import zarr
 
-from pyIGRF import get_syn
+from pyIGRF import (
+    get_syn,
+    get_value,
+    get_variation,
+)
 
 
 CMD = "igrf13"
@@ -304,45 +308,98 @@ def _verify_year_array(
     itypes: tuple[int, int],
     columns: tuple[str, ...],
     radius: float,
+    atol: float = 0.7, # nT
 ) -> bool:
 
     data = zarr.open(data_fn, mode = 'r')
     chunk = data['field'][year_idx, ...]
 
+    d_idx = columns.index('D')
+    i_idx = columns.index('I')
+    h_idx = columns.index('H')
     x_idx = columns.index('X')
     y_idx = columns.index('Y')
     z_idx = columns.index('Z')
     f_idx = columns.index('F')
 
-    for lat_idx, lat in enumerate(lats):
-        for lon_idx, lon in enumerate(lons):
-            for alt_idx, alt in enumerate(alts):
-                for itype_idx, itype in enumerate(itypes):
-                    elevation = 0.0 if itype == 1 else radius
-                    x, y, z, f = get_syn(
-                        year = year,
-                        lat = float(lat),
-                        elong = float(lon),
-                        alt = float(alt) + elevation,
-                        itype = itype,
-                    )
-                    expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [x_idx, y_idx, z_idx, f_idx]]
-                    computed = np.array((x, y, z, f), dtype = chunk.dtype) # .round()
-                    if not np.allclose(expected, computed, atol = 0.7):
-                        raise ValueError((
-                            f"year={year:f} lat={lat:f} lon={lon:f} alt={alt:f} itype={itype:d}\n"
-                            f"expected   = {_to_str(expected):s}\n"
-                            f"computed_r = {_to_str(computed.round()):s}\n"
-                            f"computed   = {_to_str(computed):s}"
-                        ))
+    dsv_idx = columns.index('D_SV')
+    isv_idx = columns.index('I_SV')
+    hsv_idx = columns.index('H_SV')
+    xsv_idx = columns.index('X_SV')
+    ysv_idx = columns.index('Y_SV')
+    zsv_idx = columns.index('Z_SV')
+    fsv_idx = columns.index('F_SV')
+
+    for (lat_idx, lat), (lon_idx, lon), (alt_idx, alt), (itype_idx, itype) in itertools.product(
+        enumerate(lats), enumerate(lons), enumerate(alts), enumerate(itypes),
+    ):
+
+        offset = 0.0 if itype == 1 else radius
+        x, y, z, f = get_syn(
+            year = year,
+            lat = float(lat),
+            elong = float(lon),
+            alt = float(alt) + offset,
+            itype = itype,
+        )
+        expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [x_idx, y_idx, z_idx, f_idx]]
+        computed = np.array((x, y, z, f), dtype = chunk.dtype)
+        if not np.allclose(expected, computed, atol = atol):
+            raise ValueError((
+                f"SYN year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
+                f"              {_columns_to_str(['X', 'Y', 'Z', 'F']):s}\n"
+                f" expected   = {_array_to_str(expected):s}\n"
+                f" computed   = {_array_to_str(computed):s}"
+            ))
+
+        if itype != 1:
+            continue
+
+        d, i, h, x, y, z, f = get_value(
+            lat = float(lat),
+            lon = float(lon),
+            alt = float(alt),
+            year = year,
+        )
+        expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [d_idx, i_idx, h_idx, x_idx, y_idx, z_idx, f_idx]]
+        computed = np.array((d, i, h, x, y, z, f), dtype = chunk.dtype)
+        if not np.allclose(expected, computed, atol = atol):
+            raise ValueError((
+                f"VALUE year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
+                f"              {_columns_to_str(['D', 'I', 'H', 'X', 'Y', 'Z', 'F']):s}\n"
+                f" expected   = {_array_to_str(expected):s}\n"
+                f" computed   = {_array_to_str(computed):s}"
+            ))
+
+        dd, ds, dh, dx, dy, dz, df = get_variation(
+            lat = float(lat),
+            lon = float(lon),
+            alt = float(alt),
+            year = year,
+        )
+        expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [dsv_idx, isv_idx, hsv_idx, xsv_idx, ysv_idx, zsv_idx, fsv_idx]]
+        computed = np.array((dd, ds, dh, dx, dy, dz, df), dtype = chunk.dtype)
+        if not np.allclose(expected, computed, atol = atol):
+            raise ValueError((
+                f"VARIATION year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
+                f"              {_columns_to_str(['D', 'S', 'H', 'X', 'Y', 'Z', 'F']):s}\n"
+                f" expected   = {_array_to_str(expected):s}\n"
+                f" computed   = {_array_to_str(computed):s}"
+            ))
 
     return True
 
 
 @typechecked
-def _to_str(data: np.ndarray) -> str:
+def _array_to_str(data: np.ndarray) -> str:
 
     return '[' + ' '.join([f'{number:10.03f}' for number in data]) + ']'
+
+
+@typechecked
+def _columns_to_str(columns: list[str]) -> str:
+
+    return '[' + ' '.join([' '*(10-len(column))+column for column in columns]) + ']'
 
 
 @typechecked
@@ -411,7 +468,7 @@ def _download(down_url: str, mode: str = "binary") -> Union[str, bytes]:
 
 
 @typechecked
-def main(clean: bool = False, parallel: bool = True):
+def main(clean: bool = False, parallel: bool = False):
 
     src_fn = os.path.join(FLD, f'{CMD:s}.f')
     if clean and os.path.exists(src_fn):

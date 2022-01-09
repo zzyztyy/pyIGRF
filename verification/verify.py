@@ -241,7 +241,7 @@ def _compute_llai_value(
 
 
 @typechecked
-def _verify_syn_arrays(
+def _verify_arrays(
     data_fn: str,
     parallel: bool = True,
 ):
@@ -261,7 +261,7 @@ def _verify_syn_arrays(
         with ProcessPoolExecutor(max_workers = cpu_count()) as p:
             tasks = [
                 p.submit(
-                    _verify_syn_year_array,
+                    _verify_year_array,
                     data_fn = data_fn,
                     year_idx = year_idx,
                     year = float(year),
@@ -280,7 +280,7 @@ def _verify_syn_arrays(
     else:
 
         for year_idx, year in enumerate(tqdm(years)):
-            _ = _verify_syn_year_array(
+            _ = _verify_year_array(
                 data_fn = data_fn,
                 year_idx = year_idx,
                 year = float(year),
@@ -294,7 +294,7 @@ def _verify_syn_arrays(
 
 
 @typechecked
-def _verify_syn_year_array(
+def _verify_year_array(
     data_fn: str,
     year_idx: int,
     year: float,
@@ -433,7 +433,7 @@ def main(clean: bool = False, parallel: bool = True):
     if not os.path.exists(data_fn):
         _compute_arrays(data_fn, parallel = parallel)
 
-    _verify_syn_arrays(data_fn, parallel = parallel)
+    _verify_arrays(data_fn, parallel = parallel)
 
 
 if __name__ == '__main__':

@@ -54,6 +54,14 @@ def _single_run(
 
 def main():
 
+    _, _, _, _ = get_syn(
+        year = 1900.0,
+        lat = 0.0,
+        elong = 0.0,
+        alt = 0.0,
+        itype = 1,
+    ) # jit warmup
+
     years = [1910.0, 1940.0, 1980.0, 2000.0, 2020.0, 2025.0]
     iterations = [10 ** exp for exp in range(1, 5)]
     itypes = (1, 2)

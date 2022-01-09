@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from math import sin, cos, sqrt, atan2, pi
-import warnings
 
-from .._debug import typechecked, DEBUG
 from ._coeffs import get_coeffs
+
+import numba as nb
+import numpy as np
 
 
 FACT = 180.0 / pi
 
 
-@typechecked
-def geodetic2geocentric(
-    theta: float,
-    alt: float,
-) -> tuple[float, float, float]:
+@nb.njit('f8[:](f8,f8)')
+def geodetic2geocentric(theta, alt):
     """
     Conversion from geodetic to geocentric coordinates by using the WGS84 spheroid.
 
@@ -42,17 +40,11 @@ def geodetic2geocentric(
     gccolat = atan2(st, ct)
     d = atan2(sd, cd)
 
-    return gccolat, d, r
+    return np.array([gccolat, d, r], dtype = 'f8')
 
 
-@typechecked
-def get_syn(
-    year: float,
-    itype: int,
-    alt: float, # double!
-    lat: float, # double!
-    elong: float, # double!
-) -> tuple[float, float, float, float]: # TODO check 12th gen vs 13th gen synthesis routine
+@nb.njit('f8[:](f8,i8,f8,f8,f8)')
+def get_syn(year, itype, alt, lat, elong): # TODO check 12th gen vs 13th gen synthesis routine
     """
     This is a synthesis routine for the 12th generation IGRF as agreed
     in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
@@ -90,24 +82,23 @@ def get_syn(
         f, total intensity [nT] if isv == 0, [rubbish] if isv == 1
     """
 
-    p, q, cl, sl = [0.] * 105, [0.] * 105, [0.] * 13, [0.] * 13
     x, y, z = 0., 0., 0.
 
     if year < 1900.0 or year > 2030.0:
         f = 1.0
-        if DEBUG:
-            warnings.warn((
-                f"This subroutine will not work with a year of {year:f}. "
-                "Date must be in the range 1900.0 <= year <= 2030.0. "
-                "On return f = 1.0, x = y = z = 0"
-            ), RuntimeWarning)
-        return x, y, z, f
+        return np.array([x, y, z, f], dtype = 'f8')
 
-    g, h = get_coeffs(year)
-    nmx = len(g) - 1
+    p = np.zeros((105,), dtype = 'f8')
+    q = np.zeros((105,), dtype = 'f8')
+    cl = np.zeros((13,), dtype = 'f8')
+    sl = np.zeros((13,), dtype = 'f8')
+
+    gh = get_coeffs(year)
+
+    nmx = gh.shape[1] - 1
     kmx = (nmx + 1) * (nmx + 2) // 2 + 1
 
-    colat = 90 - lat
+    colat = 90. - lat
     r = alt
 
     one = colat / FACT
@@ -166,13 +157,13 @@ def get_syn(
                 cl[m - 1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
                 sl[m - 1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
         # synthesis of x, y and z in geocentric coordinates
-        one = g[n][m] * rr
+        one = gh[0, n, m] * rr
         if m == 0:
             x = x + one * q[k - 1]
             z = z - (fn + 1.0) * one * p[k - 1]
             l = l + 1
         else:
-            two = h[n][m] * rr
+            two = gh[1, n, m] * rr
             three = one * cl[m - 1] + two * sl[m - 1]
             x = x + three * q[k - 1]
             z = z - (fn + 1.0) * three * p[k-1]
@@ -189,4 +180,4 @@ def get_syn(
     z = z * cd - one * sd
     f = sqrt(x * x + y * y + z * z)
 
-    return x, y, z, f
+    return np.array([x, y, z, f], dtype = 'f8')

@@ -328,7 +328,7 @@ def _verify_year_array(
                     )
                     expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [x_idx, y_idx, z_idx, f_idx]]
                     computed = np.array((x, y, z, f), dtype = chunk.dtype) # .round()
-                    if not np.allclose(expected, computed, atol = 0.5):
+                    if not np.allclose(expected, computed, atol = 0.7):
                         raise ValueError((
                             f"year={year:f} lat={lat:f} lon={lon:f} alt={alt:f} itype={itype:d}\n"
                             f"expected   = {_to_str(expected):s}\n"

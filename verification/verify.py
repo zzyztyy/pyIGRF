@@ -5,7 +5,7 @@ import itertools
 from multiprocessing import cpu_count
 import os
 import shutil
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from typing import Union
 from urllib.request import urlopen, Request
 
@@ -456,6 +456,17 @@ def _build(in_fn: str, out_fn: str):
 
 
 @typechecked
+def _patch(src_fn: str):
+
+    with open(f'{src_fn:s}.patch', mode = 'rb') as f:
+        patch = f.read()
+
+    proc = Popen(['patch', src_fn], stdin = PIPE)
+    proc.communicate(input = patch)
+    assert proc.returncode == 0
+
+
+@typechecked
 def _download(down_url: str, mode: str = "binary") -> Union[str, bytes]:
 
     assert mode in ("text", "binary")
@@ -483,6 +494,7 @@ def main(clean: bool = False, parallel: bool = False):
         raw = _download(URL)
         with open(src_fn, mode = 'wb') as f:
             f.write(raw)
+        _patch(src_fn)
 
     cmd_fn = os.path.join(FLD, CMD)
     if clean and os.path.exists(cmd_fn):

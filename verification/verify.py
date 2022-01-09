@@ -90,10 +90,10 @@ def _compute(
 @typechecked
 def _compute_arrays(
     data_fn: str,
-    year_step: float = 0.5, # 2.0
-    lat_step: float = 7.5, # 20.0 / 4.5
-    lon_step: float = 7.5, # 20.0 / 4.5
-    alt_step: float = 49.5, # 50.0 / 25.0
+    year_step: float = 2.0, # 0.5 ... 2.0
+    lat_step: float = 90.0, # 7.5 ... 90.0
+    lon_step: float = 90.0, # 7.5 ... 90.0
+    alt_step: float = 100.0, # 49.5 ... 100.0
     parallel: bool = True,
 ):
 
@@ -432,14 +432,13 @@ def _parse_reply(reply: str) -> dict[str, float]:
         value, svvalue = fragment.split('SV')
         value = value.strip()
 
-        if name in ('D', 'I'):
-            value = value.split()
-            value = float(value[0]) + float(value[2]) / 60
-        else:
+        if ' ' in value:
             value, _ = value.split(' ')
-            value = float(value)
+        value = float(value)
 
         svvalue = float(svvalue.split()[1])
+        if name in ('D', 'I'):
+            svvalue = svvalue / 60 # minutes to degree
 
         reply[name] = value
         reply[f'{name:s}_SV'] = svvalue

@@ -24,14 +24,19 @@ setup(
     package_dir = {"": SRC_DIR},
     install_requires = [],
     extras_require = {
+        "jited": [
+            "numba",
+            "numpy",
+        ],
         "dev": [
             "goto-statement",
+            "matplotlib",
             "numpy",
             "pexpect",
             "tqdm",
             "typeguard",
             "zarr",
-        ]
+        ],
     },
     package_data = {'': ['src/igrf13coeffs.txt']}
 )

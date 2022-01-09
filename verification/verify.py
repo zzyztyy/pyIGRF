@@ -16,9 +16,12 @@ from typeguard import typechecked
 import zarr
 
 from pyIGRF.pure import (
-    get_syn,
-    get_value,
-    # get_variation,
+    get_syn as pure_get_syn,
+    get_value as pure_get_value,
+)
+from pyIGRF.jited import (
+    get_syn as jited_get_syn,
+    get_value as jited_get_value,
 )
 
 
@@ -335,41 +338,73 @@ def _verify_year_array(
     ):
 
         offset = 0.0 if itype == 1 else radius
-        x, y, z, f = get_syn(
+
+        expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [x_idx, y_idx, z_idx, f_idx]]
+
+        computed = np.array(pure_get_syn(
+            year = year,
+            lat = float(lat),
+            elong = float(lon),
+            alt = float(alt) + offset,
+            itype = itype,
+        ), dtype = chunk.dtype)
+        if not np.allclose(expected, computed, atol = atol):
+            raise ValueError((
+                f"SYN year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
+                f"              {_columns_to_str(['X', 'Y', 'Z', 'F']):s}\n"
+                f" fortran    = {_array_to_str(expected):s}\n"
+                f" pure       = {_array_to_str(computed):s}\n"
+                f" diff       = {_array_to_str(np.abs(computed-expected)):s}"
+            ))
+
+        computed = jited_get_syn(
             year = year,
             lat = float(lat),
             elong = float(lon),
             alt = float(alt) + offset,
             itype = itype,
         )
-        expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [x_idx, y_idx, z_idx, f_idx]]
-        computed = np.array((x, y, z, f), dtype = chunk.dtype)
         if not np.allclose(expected, computed, atol = atol):
             raise ValueError((
                 f"SYN year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
                 f"              {_columns_to_str(['X', 'Y', 'Z', 'F']):s}\n"
                 f" fortran    = {_array_to_str(expected):s}\n"
-                f" python     = {_array_to_str(computed):s}\n"
+                f" jited      = {_array_to_str(computed):s}\n"
                 f" diff       = {_array_to_str(np.abs(computed-expected)):s}"
             ))
 
         if itype != 1:
             continue
 
-        d, i, h, x, y, z, f = get_value(
+        expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [d_idx, i_idx, h_idx, x_idx, y_idx, z_idx, f_idx]]
+
+        computed = np.array(pure_get_value(
             lat = float(lat),
             lon = float(lon),
             alt = float(alt),
             year = year,
-        )
-        expected = chunk[lat_idx, lon_idx, alt_idx, itype_idx, [d_idx, i_idx, h_idx, x_idx, y_idx, z_idx, f_idx]]
-        computed = np.array((d, i, h, x, y, z, f), dtype = chunk.dtype)
+        ), dtype = chunk.dtype)
         if not np.allclose(expected, computed, atol = atol):
             raise ValueError((
                 f"VALUE year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
                 f"              {_columns_to_str(['D', 'I', 'H', 'X', 'Y', 'Z', 'F']):s}\n"
                 f" fortran    = {_array_to_str(expected):s}\n"
-                f" python     = {_array_to_str(computed):s}\n"
+                f" pure       = {_array_to_str(computed):s}\n"
+                f" diff       = {_array_to_str(np.abs(computed-expected)):s}"
+            ))
+
+        computed = jited_get_value(
+            lat = float(lat),
+            lon = float(lon),
+            alt = float(alt),
+            year = year,
+        )
+        if not np.allclose(expected, computed, atol = atol):
+            raise ValueError((
+                f"VALUE year={year:.02f} lat={lat:.02f} lon={lon:.02f} alt={alt:.02f} itype={itype:d} atol={atol:.02f}\n"
+                f"              {_columns_to_str(['D', 'I', 'H', 'X', 'Y', 'Z', 'F']):s}\n"
+                f" fortran    = {_array_to_str(expected):s}\n"
+                f" jited      = {_array_to_str(computed):s}\n"
                 f" diff       = {_array_to_str(np.abs(computed-expected)):s}"
             ))
 

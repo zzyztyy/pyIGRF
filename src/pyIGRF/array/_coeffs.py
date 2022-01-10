@@ -93,7 +93,7 @@ def get_coeffs(years, ghs, shs):
 
 
 @typechecked
-def malloc_coeffs(years: np.array) -> tuple[np.array, np.array]:
+def malloc_coeffs(years: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
     Allocate memory
 

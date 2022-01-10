@@ -28,12 +28,12 @@ pip install git+https://github.com/pleiszenburg/pyIGRF.git@develop
 
 ## How to Use it?
 
-First import the package, either as pure Python or JIT-compiled via `numba`:
+First import the package, either as pure Python 3 or JIT-compiled via `numba` and `numpy`:
 
 ```python
-from pyIGRF.pure import get_value, get_variation
+from pyIGRF.pure import get_value, get_variation # pure Python 3
 # or
-from pyIGRF.jited import get_value, get_variation
+from pyIGRF.jited import get_value, get_variation # JIT-compiled via `numba` and `numpy`
 ```
 
 You can calculate the magnetic field's intensity:
@@ -48,17 +48,15 @@ You can calculate the annual variation of the magnetic field's intensity:
 get_variation(lat, lon, alt, year)
 ```
 
-The return value is a tuple of seven floating point numbers representing the local magnetic field:
+The return value is a tuple (or array) of seven floating point numbers representing the local magnetic field:
 
-- D: declination (+ve east)
-- I: inclination (+ve down)
-- H: horizontal intensity
-- X: north component
-- Y: east component
-- Z: vertical component (+ve down)
-- F: total intensity
-
-*units: degree or nT*
+- D: declination (+ve east) [degree]
+- I: inclination (+ve down) [degree]
+- H: horizontal intensity [nT]
+- X: north component [nT]
+- Y: east component [nT]
+- Z: vertical component (+ve down) [nT]
+- F: total intensity [nT]
 
 If you want to use the IGRF-13 model in a more flexible manner, you can use the functions `geodetic2geocentric` and `get_syn`. They are somewhat closer to the original Fortran implementation.
 

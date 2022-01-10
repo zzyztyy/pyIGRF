@@ -57,55 +57,49 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
         print('Date must be in the range 1900.0 <= date <= 20205.0')
         print('On return f = 1.0, x = y = z = 0')
         return x, y, z, f
+
     if date > 2020.0:
         # not adapt for the model but can calculate
         print('This version of the IGRF is intended for use up to 2020.0.')
         print('values for ' + str(date) + ' will be computed but may be of reduced accuracy')
+
     if date >= 2015.0:
-        goto .a1
-    t = 0.2 * (date - 1900.0)
-    ll = int(t)
-    t = t - ll
-    #
-    #     SH models before 1995.0 are only to degree 10
-    #
-    if date < 1995.0:
-        nmx = 10
-        nc = nmx * (nmx + 2)
-        ll = nc * ll
-        kmx = (nmx + 1) * (nmx + 2) / 2
-    else:
+
+        t = date - 2015.0
+        tc = 1.0
+        if (isv == 1):
+            t = 1.0
+            tc = 0.0
+
+        # pointer for last coefficient in pen-ultimate set of MF coefficients...
+        ll = 3060
         nmx = 13
         nc = nmx * (nmx + 2)
-        ll = round(0.2 * (date - 1995.0))
-        #
-        #     19 is the number of SH models that extend to degree 10
-        #
-        ll = 120 * 19 + nc * ll
         kmx = (nmx + 1) * (nmx + 2) / 2
 
-    tc = 1.0 - t
-    if (isv == 1):
-        tc = -0.2
-        t = 0.2
+    else:
 
-    goto .a2
-    #
-    label .a1
-    t = date - 2015.0
-    tc = 1.0
-    if (isv == 1):
-        t = 1.0
-        tc = 0.0
+        t = 0.2 * (date - 1900.0)
+        ll = int(t)
+        t = t - ll
 
-    #
-    #     pointer for last coefficient in pen-ultimate set of MF coefficients...
-    #
-    ll = 3060
-    nmx = 13
-    nc = nmx * (nmx + 2)
-    kmx = (nmx + 1) * (nmx + 2) / 2
-    label .a2
+        if date < 1995.0: # SH models before 1995.0 are only to degree 10
+            nmx = 10
+            nc = nmx * (nmx + 2)
+            ll = nc * ll
+            kmx = (nmx + 1) * (nmx + 2) / 2
+        else:
+            nmx = 13
+            nc = nmx * (nmx + 2)
+            ll = round(0.2 * (date - 1995.0))
+            ll = 120 * 19 + nc * ll # 19 is the number of SH models that extend to degree 10
+            kmx = (nmx + 1) * (nmx + 2) / 2
+
+        tc = 1.0 - t
+        if (isv == 1):
+            tc = -0.2
+            t = 0.2
+
     r = alt
     one = colat * 0.017453292
     ct = cos(one)
@@ -118,6 +112,7 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
     l = 1
     m = 1
     n = 0
+
     if (itype == 2):
         goto .a3
     #

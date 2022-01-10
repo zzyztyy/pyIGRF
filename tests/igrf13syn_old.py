@@ -2,12 +2,9 @@
 
 from math import sin, cos, sqrt
 
-from goto import with_goto
-
 from pyIGRF import GH
 
 
-@with_goto
 def igrf12syn_old(isv, date, itype, alt, colat, elong):
     """
      This is a synthesis routine for the 12th generation IGRF as agreed
@@ -67,7 +64,7 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
 
         t = date - 2015.0
         tc = 1.0
-        if (isv == 1):
+        if isv == 1:
             t = 1.0
             tc = 0.0
 
@@ -96,7 +93,7 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
             kmx = (nmx + 1) * (nmx + 2) / 2
 
         tc = 1.0 - t
-        if (isv == 1):
+        if isv == 1:
             tc = -0.2
             t = 0.2
 
@@ -113,7 +110,7 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
     m = 1
     n = 0
 
-    if (itype != 2): # conversion from geodetic to geocentric coordinates (using the WGS84 spheroid)
+    if itype != 2: # conversion from geodetic to geocentric coordinates (using the WGS84 spheroid)
 
         a2 = 40680631.6
         b2 = 40408296.0
@@ -148,7 +145,7 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
 
         fm = m
 
-        if (m != n):
+        if m != n:
 
             gmm = m * m
             one = sqrt(fn * fn - gmm)
@@ -168,35 +165,24 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
             cl[m - 1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
             sl[m - 1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
 
-
-
         # synthesis of x, y and z in geocentric coordinates
         lm = ll + l
         one = (tc * GH[int(lm - 1)] + t * GH[int(lm + nc - 1)]) * rr
-        if (m == 0):
-            goto .a9
-        two = (tc * GH[int(lm)] + t * GH[int(lm + nc)]) * rr
-        three = one * cl[m - 1] + two * sl[m - 1]
-        x = x + three * q[k - 1]
-        z = z - (fn + 1.0) * three * p[k - 1]
-
-
-        if st != 0.0:
-            y = y + (one * sl[m - 1] - two * cl[m - 1]) * fm * p[k - 1] / st
+        if m != 0:
+            two = (tc * GH[int(lm)] + t * GH[int(lm + nc)]) * rr
+            three = one * cl[m - 1] + two * sl[m - 1]
+            x = x + three * q[k - 1]
+            z = z - (fn + 1.0) * three * p[k - 1]
+            if st != 0.0:
+                y = y + (one * sl[m - 1] - two * cl[m - 1]) * fm * p[k - 1] / st
+            else:
+                y = y + (one * sl[m - 1] - two * cl[m - 1]) * q[k - 1] * ct
+            l = l + 2
         else:
-            y = y + (one * sl[m - 1] - two * cl[m - 1]) * q[k - 1] * ct
-
-
-        l = l + 2
-        goto .a10
-        label .a9
-        x = x + one * q[k - 1]
-        z = z - (fn + 1.0) * one * p[k - 1]
-        l = l + 1
-        label .a10
+            x = x + one * q[k - 1]
+            z = z - (fn + 1.0) * one * p[k - 1]
+            l = l + 1
         m = m + 1
-
-
 
     # conversion to coordinate system specified by itype
     one = x

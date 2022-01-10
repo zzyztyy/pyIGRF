@@ -158,6 +158,51 @@ def _get_syn(year, itype, alt, lat, elong, gh, sh, xyzf):
     xyzf[3] = sqrt(xyzf[0] * xyzf[0] + xyzf[1] * xyzf[1] + xyzf[2] * xyzf[2])
 
 
+@nb.njit('void(f8,i8,f8[:],f8[:],f8[:],f8[:,:,:],i8,f8[:,:])', parallel = True)
+def get_syn_year(year, itype, alts, lats, elongs, gh, sh, xyzfs):
+    """
+    This is a synthesis routine for the 12th generation IGRF as agreed
+    in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
+    2020.0 inclusive. Values for dates from 1945.0 to 2010.0 inclusive are
+    definitive, otherwise they are non-definitive.
+
+    To get the other geomagnetic elements (D, I, H and secular
+    variations dD, dH, dI and dF) use routines ptoc and ptocsv.
+
+    Adapted from 8th generation version to include new maximum degree for
+    main-field models for 2000.0 and onwards and use WGS84 spheroid instead
+    of International Astronomical Union 1966 spheroid as recommended by IAGA
+    in July 2003. Reference radius remains as 6371.2 km - it is NOT the mean
+    radius (= 6371.0 km) but 6371.2 km is what is used in determining the
+    coefficients. Adaptation by Susan Macmillan, August 2003 (for
+    9th generation), December 2004, December 2009, December 2014.
+
+    Coefficients at 1995.0 incorrectly rounded (rounded up instead of
+    to even) included as these are the coefficients published in Excel
+    spreadsheet July 2005.
+
+    Args:
+        year : year A.D. Must be greater than or equal to 1900.0 and
+            less than or equal to 2025.0. Warning message is given
+            for dates greater than 2020.0. Must be double precision.
+        itype : 1 if geodetic (spheroid), 2 if geocentric (sphere)
+        alts : height in km above sea level if itype == 1,
+            distance from centre of Earth in km if itype == 2 (>3485 km)
+        lats : latitude (-90 to 90)
+        elongs : east-longitude (0 to 360)
+        ghs : Array of g and h
+        shs : Array of number of spherical harmonics plus one
+        xyzfs : north, east, verical, total; [nT] if isv == 0, [nT/year] if isv == 1 (output)
+    """
+
+    assert itype == 1 or itype == 2
+    assert alts.shape[0] == lats.shape[0] == elongs.shape[0] == xyzfs.shape[0]
+    assert xyzfs.shape[1] == 4
+
+    for idx in nb.prange(alts.shape[0]):
+        _get_syn(year, itype, alts[idx], lats[idx], elongs[idx], gh, sh, xyzfs[idx, :])
+
+
 @nb.njit('void(f8[:],i8,f8[:],f8[:],f8[:],f8[:,:,:,:],i8[:],f8[:,:])', parallel = True)
 def get_syn_years(years, itype, alts, lats, elongs, ghs, shs, xyzfs):
     """
@@ -182,7 +227,7 @@ def get_syn_years(years, itype, alts, lats, elongs, ghs, shs, xyzfs):
     spreadsheet July 2005.
 
     Args:
-        years : year A.D. Must be greater than or equal to 1900.0 and
+        years : years A.D. Must be greater than or equal to 1900.0 and
             less than or equal to 2025.0. Warning message is given
             for dates greater than 2020.0. Must be double precision.
         itype : 1 if geodetic (spheroid), 2 if geocentric (sphere)

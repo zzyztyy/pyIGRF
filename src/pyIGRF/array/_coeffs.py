@@ -72,7 +72,7 @@ def _get_coeff(year, gh):
     return nmx + 1
 
 
-@nb.njit('(f8[:],f8[:,:,:,:],f8[:])', parallel = True)
+@nb.njit('(f8[:],f8[:,:,:,:],i8[:])', parallel = True)
 def get_coeffs(years, ghs, shs):
     """
     Processes coefficients
@@ -107,6 +107,6 @@ def malloc_coeffs(years: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     assert years.dtype == np.float64
 
     ghs = np.zeros((years.shape[0], 2, SH + 1, SH + 1), dtype = 'f8')
-    shs = np.zeros((years.shape[0],), dtype = 'f8')
+    shs = np.zeros((years.shape[0],), dtype = 'i8')
 
     return ghs, shs

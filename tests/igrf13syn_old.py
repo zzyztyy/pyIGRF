@@ -139,7 +139,7 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
 
     for k in range(2, int(kmx)+1):
 
-        if not (n >= m):
+        if n < m:
             m = 0
             n = n + 1
             rr = rr * ratio
@@ -147,28 +147,28 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
             gn = n - 1
 
         fm = m
+
         if (m != n):
-            goto .a5
-        if (k == 3):
-            goto .a6
-        one = sqrt(1.0 - 0.5 / fm)
-        j = k - n - 1
-        p[k - 1] = one * st * p[j - 1]
-        q[k - 1] = one * (st * q[j - 1] + ct * p[j - 1])
-        cl[m - 1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
-        sl[m - 1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
-        goto .a6
-        label .a5
-        gmm = m * m
-        one = sqrt(fn * fn - gmm)
-        two = sqrt(gn * gn - gmm) / one
-        three = (fn + gn) / one
-        i = k - n
-        j = i - n + 1
-        p[k - 1] = three * ct * p[i - 1] - two * p[j - 1]
-        q[k - 1] = three * (ct * q[i - 1] - st * p[i - 1]) - two * q[j - 1]
+
+            gmm = m * m
+            one = sqrt(fn * fn - gmm)
+            two = sqrt(gn * gn - gmm) / one
+            three = (fn + gn) / one
+            i = k - n
+            j = i - n + 1
+            p[k - 1] = three * ct * p[i - 1] - two * p[j - 1]
+            q[k - 1] = three * (ct * q[i - 1] - st * p[i - 1]) - two * q[j - 1]
+
+        elif k != 3:
+
+            one = sqrt(1.0 - 0.5 / fm)
+            j = k - n - 1
+            p[k - 1] = one * st * p[j - 1]
+            q[k - 1] = one * (st * q[j - 1] + ct * p[j - 1])
+            cl[m - 1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
+            sl[m - 1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
+
         # synthesis of x, y and z in geocentric coordinates
-        label .a6
         lm = ll + l
         one = (tc * GH[int(lm - 1)] + t * GH[int(lm + nc - 1)]) * rr
         if (m == 0):

@@ -138,14 +138,14 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
     q[2] = ct
 
     for k in range(2, int(kmx)+1):
-        if (n >= m):
-            goto .a4
-        m = 0
-        n = n + 1
-        rr = rr * ratio
-        fn = n
-        gn = n - 1
-        label .a4
+
+        if not (n >= m):
+            m = 0
+            n = n + 1
+            rr = rr * ratio
+            fn = n
+            gn = n - 1
+
         fm = m
         if (m != n):
             goto .a5

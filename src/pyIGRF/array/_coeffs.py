@@ -4,28 +4,27 @@ import numba as nb
 import numpy as np
 
 from .._coeffs import GH
+from .._debug import typechecked
 
 
 GH = np.array(GH, dtype = 'f8')
+SH = 13 # maximum number of spherical harmonics
 
 
-@nb.njit('f8[:,:,:](f8)')
-def get_coeffs(year):
+@nb.njit('i8(f8,f8[:,:,:])')
+def _get_coeffs_year(year, gh):
     """
     Processes coefficients
 
     Args:
         year : Between 1900.0 and 2030.0
+        gh : g and h (output)
     Returns:
-        g and h
+        Width/height of g and h
     """
 
     if year < 1900.0 or year > 2030.0:
-        return np.zeros((
-            2, # g/h
-            0,
-            0,
-        ), dtype = 'f8')
+        return 0
 
     if year >= 2020.0:
         t = year - 2020.0
@@ -53,18 +52,9 @@ def get_coeffs(year):
 
     # Moving forward: nmx, ll, t, tc, nc
 
-    gh = np.zeros((
-        2, # g/h
-        nmx + 1,
-        nmx + 1,
-    ), dtype = 'f8')
-
     temp = ll - 1
     for n in range(nmx + 1):
-        # gsub = []
-        # hsub = []
         if n == 0:
-            # gsub.append(np.nan)
             gh[0, n, 0] = np.nan
             offset = 1
         else:
@@ -79,4 +69,44 @@ def get_coeffs(year):
                 gh[1, n, m] = np.nan
                 temp += 1
 
-    return gh
+    return nmx + 1
+
+
+@nb.njit('(f8[:],f8[:,:,:,:],f8[:])', parallel = True)
+def get_coeffs_years(years, ghs, shs):
+    """
+    Processes coefficients
+
+    Args:
+        years : Array of years between 1900.0 and 2030.0
+        ghs : Array of g and h (output)
+        shs : Array of number of spherical harmonics plus one (output)
+    """
+
+    assert years.shape[0] == ghs.shape[0] == shs.shape[0]
+    assert ghs.shape[1] == 2
+    assert ghs.shape[2] == SH + 1 and ghs.shape[3] == SH + 1
+
+    for idx in nb.prange(years.shape[0]):
+
+        shs[idx] = _get_coeffs_year(years[idx], ghs[idx, ...])
+
+
+@typechecked
+def malloc_coeffs(years: np.array) -> tuple[np.array, np.array]:
+    """
+    Processes coefficients
+
+    Args:
+        years : Array of years between 1900.0 and 2030.0
+    Returns:
+        ghs: Array of g and h (output); shs: Array of number of spherical harmonics plus one (output)
+    """
+
+    assert years.ndim == 1
+    assert years.dtype == np.float64
+
+    ghs = np.zeros((years.shape[0], 2, SH + 1, SH + 1), dtype = 'f8')
+    shs = np.zeros((years.shape[0],), dtype = 'f8')
+
+    return ghs, shs

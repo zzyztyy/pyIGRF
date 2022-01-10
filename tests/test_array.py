@@ -6,7 +6,7 @@ import pytest
 from pyIGRF import array, jited
 
 
-ITERATIONS = 1_000
+ITERATIONS = 10_000
 
 
 @pytest.mark.parametrize(

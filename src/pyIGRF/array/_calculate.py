@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from math import sin, cos, sqrt, atan2, pi
+from numpy import sin, cos, sqrt, arctan2, pi
 
 from ._coeffs import get_coeffs
 
@@ -37,8 +37,8 @@ def geodetic2geocentric(theta, alt):
     one = ct
     ct = ct * cd - st * sd
     st = st * cd + one * sd
-    gccolat = atan2(st, ct)
-    d = atan2(sd, cd)
+    gccolat = arctan2(st, ct)
+    d = arctan2(sd, cd)
 
     return np.array([gccolat, d, r], dtype = 'f8')
 
@@ -117,7 +117,7 @@ def get_syn(year, itype, alt, lat, elong): # TODO check 12th gen vs 13th gen syn
     n = 0
 
     if itype != 2:
-        gclat, gclon, r = geodetic2geocentric(atan2(st, ct), alt)
+        gclat, gclon, r = geodetic2geocentric(arctan2(st, ct), alt)
         ct, st = cos(gclat), sin(gclat)
         cd, sd = cos(gclon), sin(gclon)
     ratio = 6371.2 / r

@@ -4,10 +4,10 @@
 Array implementation
 """
 
-# from ._calculate import (
-#     geodetic2geocentric,
+from ._calculate import (
+    geodetics2geocentrics,
 #     get_syn,
-# )
+)
 
 from ._coeffs import (
     get_coeffs_years,

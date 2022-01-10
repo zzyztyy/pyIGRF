@@ -11,6 +11,7 @@ from ._calculate import (
 
 from ._coeffs import (
     get_coeffs,
+    GH,
 )
 
 from ._value import (

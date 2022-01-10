@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from numpy import sin, cos, sqrt, arctan2, pi
+from typing import Optional, Union
 
 import numba as nb
 import numpy as np
 
+from ._coeffs import get_coeffs, malloc_coeffs, SH
 from ..jited import geodetic2geocentric as _geodetic2geocentric_scalar
+from .._debug import typechecked
 
 
 FACT = 180.0 / pi
@@ -246,3 +249,94 @@ def get_syn_years(years, itype, alts, lats, elongs, ghs, shs, xyzfs):
 
     for idx in nb.prange(years.shape[0]):
         _get_syn(years[idx], itype, alts[idx], lats[idx], elongs[idx], ghs[idx, ...], shs[idx], xyzfs[idx, :])
+
+
+@typechecked
+def get_syn(
+    years: Union[float, np.ndarray], # f8 n
+    itype: int,
+    alts: np.ndarray, # f8 n
+    lats: np.ndarray, # f8 n
+    elongs: np.ndarray, # f8 n
+    ghs: Optional[np.ndarray] = None, # f8 n * 2 * (SH+1) * (SH+1)
+    shs: Optional[np.ndarray] = None, # i8 n
+    xyzfs: Optional[np.ndarray] = None, # f8 n * 4
+) -> np.ndarray: # f8 n * 4
+    """
+    This is a synthesis routine for the 12th generation IGRF as agreed
+    in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
+    2020.0 inclusive. Values for dates from 1945.0 to 2010.0 inclusive are
+    definitive, otherwise they are non-definitive.
+
+    To get the other geomagnetic elements (D, I, H and secular
+    variations dD, dH, dI and dF) use routines ptoc and ptocsv.
+
+    Adapted from 8th generation version to include new maximum degree for
+    main-field models for 2000.0 and onwards and use WGS84 spheroid instead
+    of International Astronomical Union 1966 spheroid as recommended by IAGA
+    in July 2003. Reference radius remains as 6371.2 km - it is NOT the mean
+    radius (= 6371.0 km) but 6371.2 km is what is used in determining the
+    coefficients. Adaptation by Susan Macmillan, August 2003 (for
+    9th generation), December 2004, December 2009, December 2014.
+
+    Coefficients at 1995.0 incorrectly rounded (rounded up instead of
+    to even) included as these are the coefficients published in Excel
+    spreadsheet July 2005.
+
+    Args:
+        years : year or years A.D. Must be greater than or equal to 1900.0 and
+            less than or equal to 2025.0. Warning message is given
+            for dates greater than 2020.0. Must be double precision.
+        itype : 1 if geodetic (spheroid), 2 if geocentric (sphere)
+        alts : height in km above sea level if itype == 1,
+            distance from centre of Earth in km if itype == 2 (>3485 km)
+        lats : latitude (-90 to 90)
+        elongs : east-longitude (0 to 360)
+        ghs : Array of g and h
+        shs : Array of number of spherical harmonics plus one
+        xyzfs : north, east, verical, total; [nT] if isv == 0, [nT/year] if isv == 1 (output)
+    Returns:
+        xyzfs
+    """
+
+    years_flag = isinstance(years, np.ndarray)
+
+    if years_flag:
+        assert years.shape[0] == alts.shape[0]
+        assert years.ndim == 1
+        assert years.dtype == np.float64
+    else:
+        years = np.array([years,], dtype = 'f8')
+
+    assert itype in (1, 2)
+
+    assert alts.ndim == 1
+    assert alts.dtype == np.float64
+    assert lats.ndim == 1
+    assert lats.dtype == np.float64
+    assert elongs.ndim == 1
+    assert elongs.dtype == np.float64
+    assert alts.shape[0] == lats.shape[0] == elongs.shape[0]
+
+    if ghs is None or shs is None:
+        ghs, shs = malloc_coeffs(years)
+        get_coeffs(years, ghs, shs)
+    else:
+        assert ghs.ndim == 4
+        assert ghs.shape == (alts.shape[0], 2, SH + 1, SH + 1)
+        assert ghs.dtype == np.float64
+        assert shs.dtype == np.int64
+
+    if xyzfs is None:
+        xyzfs = np.zeros((alts.shape[0], 4), dtype = 'f8')
+    else:
+        assert xyzfs.ndim == 2
+        assert xyzfs.dtype == np.float64
+        assert xyzfs.shape == (alts.shape[0], 4)
+
+    if years_flag:
+        get_syn_years(years, itype, alts, lats, elongs, ghs, shs, xyzfs)
+    else:
+        get_syn_year(years[0], itype, alts, lats, elongs, ghs[0], shs[0], xyzfs)
+
+    return xyzfs

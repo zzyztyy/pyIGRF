@@ -8,7 +8,7 @@ from ._calculate import (
     geodetic2geocentric,
     get_syn_year,
     get_syn_years,
-#     get_syn,
+    get_syn,
 )
 
 from ._coeffs import (

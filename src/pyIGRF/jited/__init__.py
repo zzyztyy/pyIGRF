@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Pure Python implementation
+JIT-compiled implementation
 """
 
 from ._calculate import (

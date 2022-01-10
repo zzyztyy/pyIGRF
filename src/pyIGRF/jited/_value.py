@@ -2,20 +2,17 @@
 
 from math import atan2, sqrt, pi
 
-from .._debug import typechecked
+import numba as nb
+import numpy as np
+
 from ._calculate import get_syn
 
 
 FACT = 180.0 / pi
 
 
-@typechecked
-def get_value(
-    lat: float,
-    lon: float,
-    alt: float = 0.0,
-    year: float = 2005.0,
-) -> tuple[float, float, float, float, float, float, float]:
+@nb.njit('f8[:](f8,f8,f8,f8)')
+def get_value(lat, lon, alt, year):
     """
     Computes magnetic field values at given point in space.
 
@@ -40,16 +37,11 @@ def get_value(
     h = sqrt(x * x + y * y)
     i = FACT * atan2(z, h)
 
-    return d, i, h, x, y, z, f
+    return np.array([d, i, h, x, y, z, f], dtype = 'f8')
 
 
-@typechecked
-def get_variation(
-    lat: float,
-    lon: float,
-    alt: float = 0.0,
-    year: float = 2005.0,
-) -> tuple[float, float, float, float, float, float, float]:
+@nb.njit('f8[:](f8,f8,f8,f8)')
+def get_variation(lat, lon, alt, year):
     """
     Computes annual variation of magnetic field values at given point in space.
 
@@ -79,4 +71,4 @@ def get_variation(
     ds = (FACT * (h * dz - z * dh)) / (f * f)
     df = (h * dh + z * dz) / f
 
-    return dd, ds, dh, dx, dy, dz, df
+    return np.array([dd, ds, dh, dx, dy, dz, df], dtype = 'f8')

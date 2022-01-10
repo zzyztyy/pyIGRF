@@ -13,8 +13,8 @@ FACT = 180.0 / pi
 def get_value(
     lat: float,
     lon: float,
-    alt: float = 0.0,
-    year: float = 2005.0,
+    alt: float,
+    year: float,
 ) -> tuple[float, float, float, float, float, float, float]:
     """
     Computes magnetic field values at given point in space.
@@ -47,8 +47,8 @@ def get_value(
 def get_variation(
     lat: float,
     lon: float,
-    alt: float = 0.0,
-    year: float = 2005.0,
+    alt: float,
+    year: float,
 ) -> tuple[float, float, float, float, float, float, float]:
     """
     Computes annual variation of magnetic field values at given point in space.

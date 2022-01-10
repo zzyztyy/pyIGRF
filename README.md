@@ -1,6 +1,18 @@
-# pyIGRF - forked
+# pyIGRF (forked)
 
 **This is a cleaned-up and modernized fork of ``pyIGRF``. Be aware that there are a number of small function and module name differences to the original ``pyIGRF`` package. The fork's main goals are verified results, tests, speed and ease of maintainability. This is work in progress.**
+
+- [x] package structure cleanup
+- [x] type annotations
+- [x] doc strings completed and prepared for Sphinx autodoc
+- [x] debug mode via environment variable `PYIGRF_DEBUG=1`
+- [x] pure Python 3 implementation without dependency to `numpy`
+- [x] JIT-compiled implementation depending on `numba` and `numpy`, installation target `jited`
+- [ ] array implementation depending on `numba` and `numpy`, installation target `array`
+- [x] unit tests via `test` makefile target
+- [x] verification of field's values against original Fortran implementation
+- [ ] verification of field's annual/seasonal variation -> huge differences to original Fortran implementation
+- [x] benchmark
 
 ## What is pyIGRF?
 

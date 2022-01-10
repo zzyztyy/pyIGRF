@@ -5,12 +5,12 @@ Array implementation
 """
 
 from ._calculate import (
-    geodetics2geocentrics,
+    geodetic2geocentric,
 #     get_syn,
 )
 
 from ._coeffs import (
-    get_coeffs_years,
+    get_coeffs,
     malloc_coeffs,
     GH,
     SH,

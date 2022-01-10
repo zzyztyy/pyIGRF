@@ -12,7 +12,7 @@ SH = 13 # maximum number of spherical harmonics
 
 
 @nb.njit('i8(f8,f8[:,:,:])')
-def _get_coeffs_year(year, gh):
+def _get_coeff(year, gh):
     """
     Processes coefficients
 
@@ -73,7 +73,7 @@ def _get_coeffs_year(year, gh):
 
 
 @nb.njit('(f8[:],f8[:,:,:,:],f8[:])', parallel = True)
-def get_coeffs_years(years, ghs, shs):
+def get_coeffs(years, ghs, shs):
     """
     Processes coefficients
 

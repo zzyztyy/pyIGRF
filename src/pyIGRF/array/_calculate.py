@@ -12,7 +12,7 @@ FACT = 180.0 / pi
 
 
 @nb.njit('void(f8[:],f8[:],f8[:],f8[:],f8[:])')
-def geodetics2geocentrics(theta, alt, gccolat, d, r):
+def geodetic2geocentric(theta, alt, gccolat, d, r):
     """
     Conversion from geodetic to geocentric coordinates by using the WGS84 spheroid.
 

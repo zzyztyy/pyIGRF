@@ -61,10 +61,7 @@ def get_coeffs(year):
 
     temp = ll - 1
     for n in range(nmx + 1):
-        # gsub = []
-        # hsub = []
         if n == 0:
-            # gsub.append(np.nan)
             gh[0, n, 0] = np.nan
             offset = 1
         else:

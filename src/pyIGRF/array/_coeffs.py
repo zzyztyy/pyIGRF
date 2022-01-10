@@ -89,7 +89,7 @@ def get_coeffs(years, ghs, shs):
 
     for idx in nb.prange(years.shape[0]):
 
-        shs[idx] = _get_coeffs_year(years[idx], ghs[idx, ...])
+        shs[idx] = _get_coeff(years[idx], ghs[idx, ...])
 
 
 @typechecked

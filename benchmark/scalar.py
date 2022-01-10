@@ -14,9 +14,9 @@ from typeguard import typechecked
 
 from pyIGRF.pure import get_syn as pure_get_syn
 from pyIGRF.jited import get_syn as jited_get_syn
+from pyIGRF.array import get_syn as array_get_syn
 
 
-DTYPE = 'f4'
 FLD = os.path.dirname(__file__)
 
 
@@ -34,7 +34,7 @@ def _single_run(
 
     lats = [float(number) for number in random.uniform(low = -90.0, high = 90.0, size = iterations)]
     lons = [float(number) for number in random.uniform(low = 0.0, high = 360.0, size = iterations)]
-    alts = [float(number) for number in random.uniform(low = -100.0, high = 400.0, size = iterations)]
+    alts = [float(number + offset) for number in random.uniform(low = -100.0, high = 400.0, size = iterations)]
 
     gc.disable()
     start = time_ns()
@@ -45,9 +45,41 @@ def _single_run(
             year = year,
             lat = lat,
             elong = lon,
-            alt = alt + offset,
+            alt = alt,
             itype = itype,
         )
+
+    stop = time_ns()
+    gc.enable()
+
+    return (stop - start) * 1e-9
+
+
+@typechecked
+def _array_run(
+    year: float,
+    iterations: int,
+    itype: int,
+) -> float:
+
+    offset = 0.0 if itype == 1 else 6371.2
+
+    random = np.random.default_rng()
+
+    lats = random.uniform(low = -90.0, high = 90.0, size = iterations).astype('f8')
+    lons = random.uniform(low = 0.0, high = 360.0, size = iterations).astype('f8')
+    alts = random.uniform(low = -100.0, high = 400.0, size = iterations).astype('f8') + offset
+
+    gc.disable()
+    start = time_ns()
+
+    _ = array_get_syn(
+        years = year,
+        lats = lats,
+        elongs = lons,
+        alts = alts,
+        itype = itype,
+    )
 
     stop = time_ns()
     gc.enable()
@@ -75,17 +107,27 @@ def main():
 
     fig, ax = plt.subplots(figsize = (10, 10), dpi = 150)
 
-    for year, itype, (name, get_syn) in tqdm(itertools.product(
-        years, itypes, funcs,
-    ), total = len(years) * len(itypes) * len(funcs)):
+    for year, itype, in tqdm(itertools.product(years, itypes), total = len(years) * len(itypes)):
+
+        for name, get_syn in funcs:
+
+            durations = [
+                _single_run(get_syn = get_syn, year = year, iterations = iteration, itype = itype) / iteration
+                for iteration in iterations
+            ]
+
+            ax.loglog(
+                iterations, durations, label = f'{name:s} | {year:.02f} | {itype:d}',
+                linestyle = 'solid' if itype == 1 else 'dashed'
+            )
 
         durations = [
-            _single_run(get_syn = get_syn, year = year, iterations = iteration, itype = itype) / iteration
+            _array_run(year = year, iterations = iteration, itype = itype) / iteration
             for iteration in iterations
         ]
 
         ax.loglog(
-            iterations, durations, label = f'{name:s} | {year:.02f} | {itype:d}',
+            iterations, durations, label = f'array | {year:.02f} | {itype:d}',
             linestyle = 'solid' if itype == 1 else 'dashed'
         )
 

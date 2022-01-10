@@ -95,7 +95,7 @@ def get_coeffs(years, ghs, shs):
 @typechecked
 def malloc_coeffs(years: np.array) -> tuple[np.array, np.array]:
     """
-    Processes coefficients
+    Allocate memory
 
     Args:
         years : Array of years between 1900.0 and 2030.0

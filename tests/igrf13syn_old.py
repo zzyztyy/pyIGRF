@@ -113,31 +113,25 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
     m = 1
     n = 0
 
-    if (itype == 2):
-        goto .a3
-    #
-    #     conversion from geodetic to geocentric coordinates
-    #     (using the WGS84 spheroid)
-    #
-    a2 = 40680631.6
-    b2 = 40408296.0
-    one = a2 * st * st
-    two = b2 * ct * ct
-    three = one + two
-    rho = sqrt(three)
-    r = sqrt(alt * (alt + 2.0 * rho) + (a2 * one + b2 * two) / three)
-    cd = (alt + rho) / r
-    sd = (a2 - b2) / rho * ct * st / r
-    one = ct
-    ct = ct * cd - st * sd
-    st = st * cd + one * sd
-    #
-    label .a3
+    if (itype != 2): # conversion from geodetic to geocentric coordinates (using the WGS84 spheroid)
+
+        a2 = 40680631.6
+        b2 = 40408296.0
+        one = a2 * st * st
+        two = b2 * ct * ct
+        three = one + two
+        rho = sqrt(three)
+        r = sqrt(alt * (alt + 2.0 * rho) + (a2 * one + b2 * two) / three)
+        cd = (alt + rho) / r
+        sd = (a2 - b2) / rho * ct * st / r
+        one = ct
+        ct = ct * cd - st * sd
+        st = st * cd + one * sd
+
     ratio = 6371.2 / r
     rr = ratio * ratio
-    #
-    #     computation of Schmidt quasi-normal coefficients p and x(=q)
-    #
+
+    # computation of Schmidt quasi-normal coefficients p and x(=q)
     p[0] = 1.0
     p[2] = st
     q[0] = 0.0

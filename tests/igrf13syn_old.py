@@ -153,10 +153,10 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
             goto .a6
         one = sqrt(1.0 - 0.5 / fm)
         j = k - n - 1
-        p[k-1] = one * st * p[j-1]
-        q[k-1] = one * (st * q[j-1] + ct * p[j-1])
-        cl[m-1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
-        sl[m-1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
+        p[k - 1] = one * st * p[j - 1]
+        q[k - 1] = one * (st * q[j - 1] + ct * p[j - 1])
+        cl[m - 1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
+        sl[m - 1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
         goto .a6
         label .a5
         gmm = m * m
@@ -165,43 +165,38 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
         three = (fn + gn) / one
         i = k - n
         j = i - n + 1
-        p[k-1] = three * ct * p[i-1] - two * p[j-1]
-        q[k-1] = three * (ct * q[i-1] - st * p[i-1]) - two * q[j-1]
-        #
-        #     synthesis of x, y and z in geocentric coordinates
-        #
+        p[k - 1] = three * ct * p[i - 1] - two * p[j - 1]
+        q[k - 1] = three * (ct * q[i - 1] - st * p[i - 1]) - two * q[j - 1]
+        # synthesis of x, y and z in geocentric coordinates
         label .a6
         lm = ll + l
-        # print('g', n, m, k, GH[int(lm-1)], GH[int(lm + nc-1)])
-        one = (tc * GH[int(lm-1)] + t * GH[int(lm + nc-1)]) * rr
+        one = (tc * GH[int(lm - 1)] + t * GH[int(lm + nc - 1)]) * rr
         if (m == 0):
             goto .a9
-        # print('h', n, m, k, GH[int(lm)], GH[int(lm + nc)])
         two = (tc * GH[int(lm)] + t * GH[int(lm + nc)]) * rr
-        three = one * cl[m-1] + two * sl[m-1]
-        x = x + three * q[k-1]
-        z = z - (fn + 1.0) * three * p[k-1]
+        three = one * cl[m - 1] + two * sl[m - 1]
+        x = x + three * q[k - 1]
+        z = z - (fn + 1.0) * three * p[k - 1]
         if (st == 0.0):
             goto .a7
-        y = y + (one * sl[m-1] - two * cl[m-1]) * fm * p[k-1] / st
+        y = y + (one * sl[m - 1] - two * cl[m - 1]) * fm * p[k - 1] / st
         goto .a8
         label .a7
-        y = y + (one * sl[m-1] - two * cl[m-1]) * q[k-1] * ct
+        y = y + (one * sl[m - 1] - two * cl[m - 1]) * q[k - 1] * ct
         label .a8
         l = l + 2
         goto .a10
         label .a9
-        x = x + one * q[k-1]
-        z = z - (fn + 1.0) * one * p[k-1]
+        x = x + one * q[k - 1]
+        z = z - (fn + 1.0) * one * p[k - 1]
         l = l + 1
         label .a10
-        m = m+1
-    #
-    #     conversion to coordinate system specified by itype
-    #
+        m = m + 1
+
+    # conversion to coordinate system specified by itype
     one = x
     x = x * cd + z * sd
     z = z * cd - one * sd
     f = sqrt(x * x + y * y + z * z)
-    #
+
     return x, y, z, f

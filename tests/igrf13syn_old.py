@@ -168,6 +168,8 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
             cl[m - 1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
             sl[m - 1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
 
+
+
         # synthesis of x, y and z in geocentric coordinates
         lm = ll + l
         one = (tc * GH[int(lm - 1)] + t * GH[int(lm + nc - 1)]) * rr
@@ -177,13 +179,14 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
         three = one * cl[m - 1] + two * sl[m - 1]
         x = x + three * q[k - 1]
         z = z - (fn + 1.0) * three * p[k - 1]
-        if (st == 0.0):
-            goto .a7
-        y = y + (one * sl[m - 1] - two * cl[m - 1]) * fm * p[k - 1] / st
-        goto .a8
-        label .a7
-        y = y + (one * sl[m - 1] - two * cl[m - 1]) * q[k - 1] * ct
-        label .a8
+
+
+        if st != 0.0:
+            y = y + (one * sl[m - 1] - two * cl[m - 1]) * fm * p[k - 1] / st
+        else:
+            y = y + (one * sl[m - 1] - two * cl[m - 1]) * q[k - 1] * ct
+
+
         l = l + 2
         goto .a10
         label .a9
@@ -192,6 +195,8 @@ def igrf12syn_old(isv, date, itype, alt, colat, elong):
         l = l + 1
         label .a10
         m = m + 1
+
+
 
     # conversion to coordinate system specified by itype
     one = x

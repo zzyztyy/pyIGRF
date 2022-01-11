@@ -25,7 +25,7 @@
 Use pip to install the latest development version from Github:
 
 ```bash
-pip install git+https://github.com/pleiszenburg/pyIGRF.git@develop
+pip install git+https://github.com/pleiszenburg/pyIGRF.git@master
 ```
 
 ## How to Use it?

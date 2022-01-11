@@ -8,11 +8,13 @@
 - [x] debug mode via environment variable `PYIGRF_DEBUG=1`
 - [x] pure Python 3 implementation without dependency to `numpy`
 - [x] JIT-compiled implementation depending on `numba` and `numpy`, installation target `jited`
-- [ ] array implementation depending on `numba` and `numpy`, installation target `array`
+- [x] array implementation depending on `numba` and `numpy`, installation target `array`
 - [x] unit tests via `test` makefile target
 - [x] verification of field's values against original Fortran implementation
 - [ ] verification of field's annual/seasonal variation -> huge differences to original Fortran implementation
 - [x] benchmark
+
+![benchmark](benchmark/plot.png?raw=true "benchmark")
 
 ## What is pyIGRF?
 

@@ -14,6 +14,8 @@
 - [ ] verification of field's annual/seasonal variation -> huge differences to original Fortran implementation
 - [x] benchmark
 
+![benchmark](benchmark/plot.png?raw=true "benchmark")
+
 ## What is pyIGRF?
 
 `pyIGRF` is a Python package offering the IGRF-13 (International Geomagnetic Reference Field) model. You can use it to calculate the magnetic field's intensity and to transform coordinates between GeoGraphical and GeoMagnetic. The package offers different implementations, pure Python and Python JIT-compiled via `numba`.

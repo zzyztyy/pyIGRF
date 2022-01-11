@@ -96,18 +96,27 @@ def main():
         alt = 0.0,
         itype = 1,
     ) # jit warmup
+    _ = array_get_syn(
+        years = 1900.0,
+        lats = np.array([0.0], dtype = 'f8'),
+        elongs = np.array([0.0], dtype = 'f8'),
+        alts = np.array([0.0], dtype = 'f8'),
+        itype = 1,
+    ) # jit warmup
 
     years = [1910.0, 1940.0, 1980.0, 2000.0, 2020.0, 2025.0]
-    iterations = [10 ** exp for exp in range(1, 5)]
+    iterations = [10 ** exp for exp in range(1, 6)]
     itypes = (1, 2)
     funcs = (
         ('pure', pure_get_syn),
         ('jited', jited_get_syn),
     )
 
+    shades = [idx / len(years) for idx in range(1, len(years) + 1)][::-1]
+
     fig, ax = plt.subplots(figsize = (10, 10), dpi = 150)
 
-    for year, itype, in tqdm(itertools.product(years, itypes), total = len(years) * len(itypes)):
+    for (idx, year), itype, in tqdm(itertools.product(enumerate(years), itypes), total = len(years) * len(itypes)):
 
         for name, get_syn in funcs:
 
@@ -118,7 +127,8 @@ def main():
 
             ax.loglog(
                 iterations, durations, label = f'{name:s} | {year:.02f} | {itype:d}',
-                linestyle = 'solid' if itype == 1 else 'dashed'
+                linestyle = 'solid' if itype == 1 else 'dashed',
+                color = (1, shades[idx], shades[idx], 1) if name == 'pure' else (shades[idx], 1, shades[idx], 1),
             )
 
         durations = [
@@ -128,10 +138,12 @@ def main():
 
         ax.loglog(
             iterations, durations, label = f'array | {year:.02f} | {itype:d}',
-            linestyle = 'solid' if itype == 1 else 'dashed'
+            linestyle = 'solid' if itype == 1 else 'dashed',
+            color = (shades[idx], shades[idx], 1, 1),
         )
 
     ax.legend()
+    ax.set_title('pyIGRF (forked) benchmark')
     ax.set_xlabel('iterations')
     ax.set_ylabel('time per itertation [s]')
     ax.grid()

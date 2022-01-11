@@ -28,6 +28,10 @@ setup(
             "numba",
             "numpy",
         ],
+        "array": [
+            "numba",
+            "numpy",
+        ],
         "dev": [
             "goto-statement",
             "matplotlib",

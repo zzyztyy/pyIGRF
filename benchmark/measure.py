@@ -149,7 +149,7 @@ def main():
     ax.grid()
 
     fig.tight_layout()
-    fig.savefig(os.path.join(FLD, 'benchmark_scalar.png'))
+    fig.savefig(os.path.join(FLD, 'plot.png'))
 
 
 if __name__ == '__main__':

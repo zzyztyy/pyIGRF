@@ -36,6 +36,8 @@ First import the package, either as pure Python 3 or JIT-compiled via `numba` an
 from pyIGRF.pure import get_value, get_variation # pure Python 3
 # or
 from pyIGRF.jited import get_value, get_variation # JIT-compiled via `numba` and `numpy`
+# or
+from pyIGRF.array import get_value, get_variation # array implementation via `numba` and `numpy`
 ```
 
 You can calculate the magnetic field's intensity:

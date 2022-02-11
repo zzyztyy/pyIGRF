@@ -75,7 +75,7 @@ This project was originally forked from `pyIGRF`:
 
 There are other, independent implementations named `pyIGRF`, not to be confused with the previously mentioned one:
 
-- [another recent independent pyIGRF, Python](https://github.com/rilma/pyIGRF)
+- [another recent independent pyIGRF, Python](https://github.com/ciaranbe/pyIGRF)
 - [another older independent pyIGRF, Python & Fortran](https://github.com/rilma/pyIGRF)
 - [another small independent pyigrf, Python](https://github.com/radars-eceillinois/pyigrf)
 

@@ -2,7 +2,7 @@
 
 **``pyCRGI`` is a cleaned-up and modernized fork of ``pyIGRF``. Be aware that there are a number of small function and module name differences to the original ``pyIGRF`` package. The fork's main goals are verified results, tests, speed and ease of maintainability. This is work in progress.**
 
-- [x] package structure cleanup
+- [x] package structure cleanup, allowing proper testing and packaging
 - [x] type annotations
 - [x] doc strings completed and prepared for Sphinx autodoc
 - [x] debug mode via environment variable `PYCGIR_DEBUG=1`
@@ -71,12 +71,22 @@ Another function, `get_coeffs`, can be used to get `g[m][n]` or `h[m][n]` corres
 
 This project was originally forked from `pyIGRF`:
 
-- [Original pyIGRF](https://github.com/zzyztyy/pyIGRF)
+- [original pyIGRF, Python](https://github.com/zzyztyy/pyIGRF)
+
+There are other, independent implementations named `pyIGRF`, not to be confused with the previously mentioned one:
+
+- [another recent independent pyIGRF, Python](https://github.com/rilma/pyIGRF)
+- [another older independent pyIGRF, Python & Fortran](https://github.com/rilma/pyIGRF)
+- [another small independent pyigrf, Python](https://github.com/radars-eceillinois/pyigrf)
 
 The official IGRF implementations by IAGA are available via the NOAA website:
 
 - [IAGA IGRF, Fortran](https://www.ngdc.noaa.gov/IAGA/vmod/igrf13.f)
 - [IAGA IGRF, Python](https://www.ngdc.noaa.gov/IAGA/vmod/pyIGRF.zip)
+
+A good, modern and pure Python implementation:
+
+- [ppigrf, Python](https://github.com/klaundal/ppigrf)
 
 Another Python implementation is part of the [navtools package](https://github.com/slott56/navtools):
 
@@ -85,6 +95,10 @@ Another Python implementation is part of the [navtools package](https://github.c
 Another Python wrapper around a cleaned-up version of IAGA's Fortran code is maintained as part of the [space physics project](https://github.com/space-physics):
 
 - [space-physics IGRF, Python & Fortran](https://github.com/space-physics/igrf)
+
+A more or less undocumented, pure Python implementation can be found here:
+
+- [ADCS_IGRF, Python](https://github.com/IvanSmirnovSPL/ADCS_IGRF/blob/master/IGRF/IGRF.py)
 
 The IGRF is not to be confused with the [World Magnetic Model](https://en.wikipedia.org/wiki/World_Magnetic_Model) (WMM). Recent implementations of the WMM accessible via Python are maintained as part of the [space physics project](https://github.com/space-physics):
 

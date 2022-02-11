@@ -66,6 +66,30 @@ If you want to use the IGRF-13 model in a more flexible manner, you can use the 
 
 Another function, `get_coeffs`, can be used to get `g[m][n]` or `h[m][n]` corresponding to the IGRF's formula.
 
+## Alternatives
+
+This project was originally forked from `pyIGRF`:
+
+- [Original pyIGRF](https://github.com/zzyztyy/pyIGRF)
+
+The official IGRF implementations by IAGA are available via the NOAA website:
+
+- [IAGA IGRF, Fortran](https://www.ngdc.noaa.gov/IAGA/vmod/igrf13.f)
+- [IAGA IGRF, Python](https://www.ngdc.noaa.gov/IAGA/vmod/pyIGRF.zip)
+
+Another Python implementation is part of the [navtools package](https://github.com/slott56/navtools):
+
+- [navtools IGRF, Python](https://github.com/slott56/navtools/blob/master/navtools/igrf.py)
+
+Another Python wrapper around a cleaned-up version of IAGA's Fortran code is maintained as part of the [space physics project](https://github.com/space-physics):
+
+- [space-physics IGRF, Python & Fortran](https://github.com/space-physics/igrf)
+
+The IGRF is not to be confused with the [World Magnetic Model](https://en.wikipedia.org/wiki/World_Magnetic_Model) (WMM). Recent implementations of the WMM accessible via Python are maintained as part of the [space physics project](https://github.com/space-physics):
+
+- [space-physics WMM2015, Python & C](https://github.com/space-physics/WMM2015)
+- [space-physics WMM2020, Python & C](https://github.com/space-physics/wmm2020)
+
 ## References
 
 - [Model introduction and IGRF-13 coefficients file download at NOAA](https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html)

@@ -13,6 +13,7 @@
 - [x] verification of field's values against original Fortran implementation
 - [ ] verification of field's annual/seasonal variation -> huge differences to original Fortran implementation
 - [x] benchmark
+- [ ] clean up and add missing relevant coordinate system conversions
 
 ![benchmark](benchmark/plot.png?raw=true "benchmark")
 

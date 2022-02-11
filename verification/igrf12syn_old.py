@@ -4,7 +4,7 @@ from math import sin, cos, sqrt
 
 from goto import with_goto
 
-from pyIGRF import GH
+from pyCRGI import GH
 
 
 @with_goto

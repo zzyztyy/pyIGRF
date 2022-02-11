@@ -11,15 +11,15 @@ with open("README.md", mode = 'r', encoding = 'utf-8') as f:
 
 
 setup(
-    name = "pyIGRF",
-    version = "0.3.4",
-    author = "pyIGRF authors",
+    name = "pyCRGI",
+    version = "0.4.0",
+    author = "pyCRGI authors",
     author_email = "ernst@pleiszenburg.de",
     description = "IGRF-13 Model in Python",
     long_description = readme,
     long_description_content_type = "text/markdown",
     license = "MIT",
-    url = "https://github.com/pleiszenburg/pyIGRF",
+    url = "https://github.com/pleiszenburg/pyCRGI",
     packages = find_packages(SRC_DIR),
     package_dir = {"": SRC_DIR},
     install_requires = [],
@@ -42,5 +42,4 @@ setup(
             "zarr",
         ],
     },
-    package_data = {'': ['src/igrf13coeffs.txt']}
 )

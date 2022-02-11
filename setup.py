@@ -42,5 +42,4 @@ setup(
             "zarr",
         ],
     },
-    package_data = {'': ['src/igrf13coeffs.txt']}
 )

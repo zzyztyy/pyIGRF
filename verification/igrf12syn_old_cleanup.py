@@ -2,7 +2,7 @@
 
 from math import sin, cos, sqrt
 
-from pyIGRF import GH
+from pyCRGI import GH
 
 
 def igrf12syn_old(isv, date, itype, alt, colat, elong):

@@ -15,11 +15,11 @@ from tqdm import tqdm
 from typeguard import typechecked
 import zarr
 
-from pyIGRF.pure import (
+from pyCRGI.pure import (
     get_syn as pure_get_syn,
     get_value as pure_get_value,
 )
-from pyIGRF.jited import (
+from pyCRGI.jited import (
     get_syn as jited_get_syn,
     get_value as jited_get_value,
 )

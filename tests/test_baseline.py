@@ -4,12 +4,12 @@ from math import isclose
 
 import pytest
 
-from pyIGRF.pure import (
+from pyCRGI.pure import (
     get_coeffs as pure_get_coeffs,
     get_value as pure_get_value,
     get_variation as pure_get_variation,
 )
-from pyIGRF.jited import (
+from pyCRGI.jited import (
     get_coeffs as jited_get_coeffs,
     get_value as jited_get_value,
     get_variation as jited_get_variation,

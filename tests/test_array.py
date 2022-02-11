@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pyIGRF import array, jited
+from pyCRGI import array, jited
 
 
 ITERATIONS = 10_000

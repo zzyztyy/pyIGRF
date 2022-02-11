@@ -12,9 +12,9 @@ import numpy as np
 from tqdm import tqdm
 from typeguard import typechecked
 
-from pyIGRF.pure import get_syn as pure_get_syn
-from pyIGRF.jited import get_syn as jited_get_syn
-from pyIGRF.array import get_syn as array_get_syn
+from pyCRGI.pure import get_syn as pure_get_syn
+from pyCRGI.jited import get_syn as jited_get_syn
+from pyCRGI.array import get_syn as array_get_syn
 
 
 FLD = os.path.dirname(__file__)
@@ -143,7 +143,7 @@ def main():
         )
 
     ax.legend()
-    ax.set_title('pyIGRF (forked) benchmark')
+    ax.set_title('pyCRGI benchmark')
     ax.set_xlabel('iterations')
     ax.set_ylabel('time per itertation [s]')
     ax.grid()

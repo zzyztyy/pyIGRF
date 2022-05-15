@@ -112,7 +112,7 @@ def main():
     ) # jit warmup
 
     years = [1910.0, 1940.0, 1980.0, 2000.0, 2020.0, 2025.0]
-    iterations = [10 ** exp for exp in range(1, 6)]
+    iterations = [10 ** exp for exp in range(1, 8)]
     itypes = (1, 2)
     funcs = (
         ('pure', pure_get_syn),

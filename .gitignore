@@ -6,3 +6,4 @@ igrf13.f
 *.zarr
 *.zarr/
 benchmark*.png
+env*/

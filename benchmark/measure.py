@@ -1,12 +1,12 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import gc
 import itertools
+import json
 import os
 from time import time_ns
-from typing import Callable
-
-import matplotlib.pyplot as plt
+from typing import Callable, Dict
 
 import numpy as np
 from tqdm import tqdm
@@ -87,6 +87,13 @@ def _array_run(
     return (stop - start) * 1e-9
 
 
+@typechecked
+def _log(fn: str, data: Dict):
+    with open(fn, mode = 'a', encoding='utf-8') as f:
+        f.write(f'{json.dumps(data):s}\n')
+        f.flush()
+
+
 def main():
 
     _, _, _, _ = jited_get_syn(
@@ -105,16 +112,21 @@ def main():
     ) # jit warmup
 
     years = [1910.0, 1940.0, 1980.0, 2000.0, 2020.0, 2025.0]
-    iterations = [10 ** exp for exp in range(1, 6)]
+    iterations = [10 ** exp for exp in range(1, 8)]
     itypes = (1, 2)
     funcs = (
         ('pure', pure_get_syn),
         ('jited', jited_get_syn),
     )
 
-    shades = [idx / len(years) for idx in range(1, len(years) + 1)][::-1]
+    shades = [
+        idx / len(years)
+        for idx in range(1, len(years) + 1)
+    ][::-1]
 
-    fig, ax = plt.subplots(figsize = (10, 10), dpi = 150)
+    FN = os.path.join(FLD, 'data.txt')
+    if os.path.exists(FN):
+        os.unlink(FN)
 
     for (idx, year), itype, in tqdm(itertools.product(enumerate(years), itypes), total = len(years) * len(itypes)):
 
@@ -125,32 +137,28 @@ def main():
                 for iteration in iterations
             ]
 
-            ax.loglog(
-                iterations, durations, label = f'{name:s} | {year:.02f} | {itype:d}',
-                linestyle = 'solid' if itype == 1 else 'dashed',
-                color = (1, shades[idx], shades[idx], 1) if name == 'pure' else (shades[idx], 1, shades[idx], 1),
-            )
+            _log(FN, {
+                'name': name,
+                'year': year,
+                'itype': itype,
+                'iterations': iterations,
+                'durations': durations,
+                'color': [1, shades[idx], shades[idx], 1] if name == 'pure' else [shades[idx], 1, shades[idx], 1],
+            })
 
         durations = [
             _array_run(year = year, iterations = iteration, itype = itype) / iteration
             for iteration in iterations
         ]
 
-        ax.loglog(
-            iterations, durations, label = f'array | {year:.02f} | {itype:d}',
-            linestyle = 'solid' if itype == 1 else 'dashed',
-            color = (shades[idx], shades[idx], 1, 1),
-        )
-
-    ax.legend()
-    ax.set_title('pyCRGI benchmark')
-    ax.set_xlabel('iterations')
-    ax.set_ylabel('time per itertation [s]')
-    ax.grid()
-
-    fig.tight_layout()
-    fig.savefig(os.path.join(FLD, 'plot.png'))
-
+        _log(FN, {
+            'name': 'array',
+            'year': year,
+            'itype': itype,
+            'iterations': iterations,
+            'durations': durations,
+            'color': [shades[idx], shades[idx], 1, 1],
+        })
 
 if __name__ == '__main__':
     main()

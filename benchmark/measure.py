@@ -125,6 +125,8 @@ def main():
     ][::-1]
 
     FN = os.path.join(FLD, 'data.txt')
+    if os.path.exists(FN):
+        os.unlink(FN)
 
     for (idx, year), itype, in tqdm(itertools.product(enumerate(years), itypes), total = len(years) * len(itypes)):
 

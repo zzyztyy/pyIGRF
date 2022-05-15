@@ -44,11 +44,10 @@ def main():
             ),
         ))
 
-    # title = 'pyCRGI benchmark'
-
     layout = go.Layout(
         autosize=True,
         showlegend=True,
+        title = 'pyCRGI benchmark',
         legend=dict(
             yanchor="top",
             xanchor="right",
@@ -85,9 +84,6 @@ def main():
         layout = layout,
     )
 
-    # show_link = False,
-    # output_type = "div",
-    # include_plotlyjs = False,
     fig.write_html(
         os.path.join(FLD, 'plot.htm'),
     )

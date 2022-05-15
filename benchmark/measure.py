@@ -2,9 +2,10 @@
 
 import gc
 import itertools
+import json
 import os
 from time import time_ns
-from typing import Callable
+from typing import Callable, Dict
 
 import numpy as np
 from tqdm import tqdm
@@ -85,6 +86,13 @@ def _array_run(
     return (stop - start) * 1e-9
 
 
+@typechecked
+def _log(fn: str, data: Dict):
+    with open(fn, mode = 'a', encoding='utf-8') as f:
+        f.write(f'{json.dumps(data):s}\n')
+        f.flush()
+
+
 def main():
 
     _, _, _, _ = jited_get_syn(
@@ -110,6 +118,13 @@ def main():
         ('jited', jited_get_syn),
     )
 
+    shades = [
+        idx / len(years)
+        for idx in range(1, len(years) + 1)
+    ][::-1]
+
+    FN = os.path.join(FLD, 'data.txt')
+
     for (idx, year), itype, in tqdm(itertools.product(enumerate(years), itypes), total = len(years) * len(itypes)):
 
         for name, get_syn in funcs:
@@ -119,16 +134,28 @@ def main():
                 for iteration in iterations
             ]
 
-            # name, year, itype
-            # iterations, durations
+            _log(FN, {
+                'name': name,
+                'year': year,
+                'itype': itype,
+                'iterations': iterations,
+                'durations': durations,
+                'color': [1, shades[idx], shades[idx], 1] if name == 'pure' else [shades[idx], 1, shades[idx], 1],
+            })
 
         durations = [
             _array_run(year = year, iterations = iteration, itype = itype) / iteration
             for iteration in iterations
         ]
 
-        # "array", year, itype
-        # iterations, durations
+        _log(FN, {
+            'name': 'array',
+            'year': year,
+            'itype': itype,
+            'iterations': iterations,
+            'durations': durations,
+            'color': [shades[idx], shades[idx], 1, 1],
+        })
 
 if __name__ == '__main__':
     main()

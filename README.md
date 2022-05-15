@@ -15,7 +15,7 @@
 - [x] benchmark
 - [ ] clean up and add missing relevant coordinate system conversions
 
-![benchmark](benchmark/plot.png?raw=true "benchmark")
+![benchmark](benchmark/plot_epyc7443p.png?raw=true "benchmark")
 
 ## What is pyCRGI?
 

@@ -44,9 +44,7 @@ def main():
             ),
         ))
 
-    # ax.set_title('pyCRGI benchmark')
-    # ax.set_xlabel('iterations')
-    # ax.set_ylabel('time per itertation [s]')
+    # title = 'pyCRGI benchmark'
 
     layout = go.Layout(
         autosize=True,
@@ -66,6 +64,8 @@ def main():
             gridwidth=1,
             zerolinewidth=2,
             linewidth=2,
+            type = "log",
+            title = "iterations",
         ),
         yaxis=dict(
             showgrid=True,
@@ -75,6 +75,8 @@ def main():
             gridwidth=1,
             zerolinewidth=2,
             linewidth=2,
+            type = "log",
+            title = "time per itertation [s]",
         ),
     )
 
@@ -82,13 +84,13 @@ def main():
         data = traces,
         layout = layout,
     )
-    fig.update_xaxes(type = "log")
-    fig.update_yaxes(type = "log")
 
     # show_link = False,
     # output_type = "div",
     # include_plotlyjs = False,
-    fig.write_html(os.path.join(FLD, 'plot.htm'))
+    fig.write_html(
+        os.path.join(FLD, 'plot.htm'),
+    )
 
 if __name__ == '__main__':
     main()

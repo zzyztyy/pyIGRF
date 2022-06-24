@@ -119,8 +119,13 @@ def main():
         itype = 1,
     ) # jit warmup
 
-    years = [1910.0, 1940.0, 1980.0, 2000.0, 2020.0, 2025.0]
-    iterations = [10 ** exp for exp in range(1, 5)]  # 8 or 5
+    years = [
+        1910.0,
+        # 1940.0, 1980.0,
+        2000.0, 2020.0,
+        2025.0
+    ]
+    iterations = [10 ** exp for exp in range(1, 7)]  # 8
     itypes = (1, 2)
     funcs = (
         ('pure', pure_get_syn),
@@ -129,7 +134,7 @@ def main():
     )
 
     shades = [
-        idx / len(years)
+        1 - 0.7 * idx / len(years)
         for idx in range(1, len(years) + 1)
     ][::-1]
 

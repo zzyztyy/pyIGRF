@@ -41,6 +41,8 @@ from pyCRGI.jited import get_value, get_variation # JIT-compiled via `numba` and
 from pyCRGI.array import get_value, get_variation # array implementation via `numba` and `numpy`
 ```
 
+As an alternative to `pyCRGI.jited`, there is also an experimental, structurally different JIT-compiled version named `pyCRGI.jited2` available. In the latter implementation, the handling of coefficients differs from the original Fortran implementation that `pyCRGI` & `pyIGRF` are based on. It can serve as a foundation for a CUDA-based implementation.
+
 You can calculate the magnetic field's intensity:
 
 ```python

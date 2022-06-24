@@ -28,22 +28,20 @@ def get_g_coeff(
 
     temp = ll - 1
 
-    for n in range(nn + 1):
+    if not (0 == nn and 1 == mm):
+        temp += 1
 
-        if n == 0:
-            offset = 1
-        else:
-            offset = 0
+    if nn > 1:
+        temp += nn ** 2 - 1
 
-        for m in range(n + 1):
+    if nn > 0:
 
-            if n == nn and m + offset == mm:
-                break
+        limit = nn + 1
+        if limit >= mm:
+            limit = mm
 
-            if m != 0:
-                temp += 2
-            else:
-                temp += 1
+        if limit > 0:
+            temp += 2 * (limit - 1) + 1
 
     return tc * GH[temp] + tt * GH[temp + nc]
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-JIT-compiled implementation
+JIT-compiled implementation, 2nd experimental edition
 """
 
 from ._calculate import (

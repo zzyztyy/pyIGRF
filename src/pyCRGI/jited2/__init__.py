@@ -10,7 +10,9 @@ from ._calculate import (
 )
 
 from ._coeffs import (
-    get_coeffs,
+    get_g_coeff,
+    get_h_coeff,
+    get_coeffs_prepare,
     GH,
 )
 

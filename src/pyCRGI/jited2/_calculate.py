@@ -2,7 +2,11 @@
 
 from math import sin, cos, sqrt, atan2, pi
 
-from ._coeffs import get_coeffs
+from ._coeffs import (
+    get_g_coeff,
+    get_h_coeff,
+    get_coeffs_prepare,
+)
 
 import numba as nb
 import numpy as np
@@ -93,9 +97,7 @@ def get_syn(year, itype, alt, lat, elong): # TODO check 12th gen vs 13th gen syn
     cl = np.zeros((13,), dtype = 'f8')
     sl = np.zeros((13,), dtype = 'f8')
 
-    gh = get_coeffs(year)
-
-    nmx = gh.shape[1] - 1
+    nmx, ll, tt, tc, nc = get_coeffs_prepare(year)
     kmx = (nmx + 1) * (nmx + 2) // 2 + 1
 
     colat = 90. - lat
@@ -157,13 +159,13 @@ def get_syn(year, itype, alt, lat, elong): # TODO check 12th gen vs 13th gen syn
                 cl[m - 1] = cl[m - 2] * cl[0] - sl[m - 2] * sl[0]
                 sl[m - 1] = sl[m - 2] * cl[0] + cl[m - 2] * sl[0]
         # synthesis of x, y and z in geocentric coordinates
-        one = gh[0, n, m] * rr
+        one = get_g_coeff(n, m, ll, tt, tc, nc) * rr
         if m == 0:
             x = x + one * q[k - 1]
             z = z - (fn + 1.0) * one * p[k - 1]
             l = l + 1
         else:
-            two = gh[1, n, m] * rr
+            two = get_h_coeff(n, m, ll, tt, tc, nc) * rr
             three = one * cl[m - 1] + two * sl[m - 1]
             x = x + three * q[k - 1]
             z = z - (fn + 1.0) * three * p[k-1]

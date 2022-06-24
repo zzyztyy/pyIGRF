@@ -14,6 +14,7 @@ from typeguard import typechecked
 
 from pyCRGI.pure import get_syn as pure_get_syn
 from pyCRGI.jited import get_syn as jited_get_syn
+from pyCRGI.jited2 import get_syn as jited2_get_syn
 from pyCRGI.array import get_syn as array_get_syn
 
 
@@ -103,6 +104,13 @@ def main():
         alt = 0.0,
         itype = 1,
     ) # jit warmup
+    _, _, _, _ = jited2_get_syn(
+        year = 1900.0,
+        lat = 0.0,
+        elong = 0.0,
+        alt = 0.0,
+        itype = 1,
+    ) # jit warmup
     _ = array_get_syn(
         years = 1900.0,
         lats = np.array([0.0], dtype = 'f8'),
@@ -111,16 +119,22 @@ def main():
         itype = 1,
     ) # jit warmup
 
-    years = [1910.0, 1940.0, 1980.0, 2000.0, 2020.0, 2025.0]
-    iterations = [10 ** exp for exp in range(1, 8)]
+    years = [
+        1910.0,
+        # 1940.0, 1980.0,
+        2000.0, 2020.0,
+        2025.0
+    ]
+    iterations = [10 ** exp for exp in range(1, 7)]  # 8
     itypes = (1, 2)
     funcs = (
         ('pure', pure_get_syn),
         ('jited', jited_get_syn),
+        ('jited2', jited2_get_syn),
     )
 
     shades = [
-        idx / len(years)
+        1 - 0.7 * idx / len(years)
         for idx in range(1, len(years) + 1)
     ][::-1]
 
@@ -137,13 +151,22 @@ def main():
                 for iteration in iterations
             ]
 
+            if name == 'pure':
+                color = [1, shades[idx], shades[idx], 1]
+            elif name == 'jited':
+                color = [shades[idx], 1, shades[idx], 1]
+            elif name == 'jited2':
+                color = [shades[idx], shades[idx], shades[idx], 1]  # TODO
+            else:
+                raise ValueError('unknown name', name)
+
             _log(FN, {
                 'name': name,
                 'year': year,
                 'itype': itype,
                 'iterations': iterations,
                 'durations': durations,
-                'color': [1, shades[idx], shades[idx], 1] if name == 'pure' else [shades[idx], 1, shades[idx], 1],
+                'color': color,
             })
 
         durations = [

@@ -14,11 +14,15 @@ from pyCRGI.jited import (
     get_value as jited_get_value,
     get_variation as jited_get_variation,
 )
+from pyCRGI.jited2 import (
+    get_value as jited2_get_value,
+    get_variation as jited2_get_variation,
+)
 
 
 @pytest.mark.parametrize(
     "get_value, get_variation",
-    [(pure_get_value, pure_get_variation), (jited_get_value, jited_get_variation)]
+    [(pure_get_value, pure_get_variation), (jited_get_value, jited_get_variation), (jited2_get_value, jited2_get_variation)]
 )
 def test_doc(get_value, get_variation):
 
@@ -33,7 +37,7 @@ def test_doc(get_value, get_variation):
 
 @pytest.mark.parametrize(
     "get_value, get_variation",
-    [(pure_get_value, pure_get_variation), (jited_get_value, jited_get_variation)]
+    [(pure_get_value, pure_get_variation), (jited_get_value, jited_get_variation), (jited2_get_value, jited2_get_variation)]
 )
 def test_compute(get_value, get_variation):
 

@@ -49,7 +49,7 @@ def main():
     ax.grid()
 
     fig.tight_layout()
-    fig.savefig(os.path.join(FLD, 'plot.png'))
+    fig.savefig(os.path.join(FLD, 'plot_latest.png'))
 
 
 if __name__ == '__main__':

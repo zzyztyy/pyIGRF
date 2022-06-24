@@ -65,17 +65,15 @@ def get_h_coeff(
 
     temp = ll - 1
 
-    for n in range(nn + 1):
+    if nn > 0:
+        temp += nn ** 2
 
-        for m in range(n + 1):
+    limit = nn + 1
+    if limit > mm:
+        limit = mm
 
-            if n == nn and m == mm:
-                break
-
-            if m != 0:
-                temp += 2
-            else:
-                temp += 1
+    if limit > 0:
+        temp += 2 * (limit - 1) + 1
 
     return tc * GH[temp + 1] + tt * GH[temp + nc + 1]
 

@@ -1,0 +1,54 @@
+--- igrf13.f.old	2022-01-09 19:12:33.200882798 +0100
++++ igrf13.f	2022-01-09 19:22:14.046108602 +0100
+@@ -196,37 +196,37 @@
+       ENDIF
+ C
+       IDD = NINT(DD)
+-      WRITE(IU,937) IDEC,IDECM,IDD
+-  937 FORMAT (15X,'D =',I5,' deg',I4,' min',4X,'SV =',I8,' min/yr')
++      WRITE(IU,937) D,DD
++  937 FORMAT (15X,'D =',F12.5,4X,'SV =',F12.3,' min/yr')
+ C
+       IDS = NINT(DS)
+-      WRITE(IU,939) INC,INCM,IDS
+-  939 FORMAT (15X,'I =',I5,' deg',I4,' min',4X,'SV =',I8,' min/yr')
++      WRITE(IU,939) S,DS
++  939 FORMAT (15X,'I =',F12.5,4X,'SV =',F12.3,' min/yr')
+ C
+       IH = NINT(H)
+       IDH = NINT(DH)
+-      WRITE(IU,941) IH,IDH
+-  941 FORMAT (15X,'H =',I8,' nT     ',5X,'SV =',I8,' nT/yr')
++      WRITE(IU,941) H,DH
++  941 FORMAT (15X,'H =',F12.3,' nT     ',5X,'SV =',F12.3,' nT/yr')
+ C
+       IX = NINT(X)
+       IDX = NINT(DX)
+-      WRITE(IU,943) IX,IDX
+-  943 FORMAT (15X,'X =',I8,' nT     ',5X,'SV =',I8,' nT/yr')
++      WRITE(IU,943) X,DX
++  943 FORMAT (15X,'X =',F12.3,' nT     ',5X,'SV =',F12.3,' nT/yr')
+ C
+       IY = NINT(Y)
+       IDY = NINT(DY)
+-      WRITE(IU,945) IY,IDY
+-  945 FORMAT (15X,'Y =',I8,' nT     ',5X,'SV =',I8,' nT/yr')
++      WRITE(IU,945) Y,DY
++  945 FORMAT (15X,'Y =',F12.3,' nT     ',5X,'SV =',F12.3,' nT/yr')
+ C
+       IZ = NINT(Z)
+       IDZ = NINT(DZ)
+-      WRITE(IU,947) IZ,IDZ
+-  947 FORMAT (15X,'Z =',I8,' nT     ',5X,'SV =',I8,' nT/yr')
++      WRITE(IU,947) Z,DZ
++  947 FORMAT (15X,'Z =',F12.3,' nT     ',5X,'SV =',F12.3,' nT/yr')
+ C
+       NF = NINT(F)
+       IDF = NINT(DF)
+-      WRITE(IU,949) NF,IDF
+-  949 FORMAT (15X,'F =',I8,' nT     ',5X,'SV =',I8,' nT/yr'/)
++      WRITE(IU,949) F,DF
++  949 FORMAT (15X,'F =',F12.3,' nT     ',5X,'SV =',F12.3,' nT/yr'/)
+ C
+       GO TO 40
+ C

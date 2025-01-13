@@ -44,8 +44,8 @@ def igrf12syn(date, itype, alt, lat, elong):
      definitive, otherwise they are non-definitive.
    INPUT
      date  = year A.D. Must be greater than or equal to 1900.0 and
-             less than or equal to 2025.0. Warning message is given
-             for dates greater than 2020.0. Must be double precision.
+             less than or equal to 2030.0. Warning message is given
+             for dates greater than 2025.0. Must be double precision.
      itype = 1 if geodetic (spheroid)
      itype = 2 if geocentric (sphere)
      alt   = height in km above sea level if itype = 1
@@ -78,10 +78,10 @@ def igrf12syn(date, itype, alt, lat, elong):
     p, q, cl, sl = [0.] * 105, [0.] * 105, [0.] * 13, [0.] * 13
     x, y, z = 0., 0., 0.
 
-    if date < 1900.0 or date > 2025.0:
+    if date < 1900.0 or date > 2030.0:
         f = 1.0
         print('This subroutine will not work with a date of ' + str(date))
-        print('Date must be in the range 1900.0 <= date <= 2025.0')
+        print('Date must be in the range 1900.0 <= date <= 2030.0')
         print('On return f = 1.0, x = y = z = 0')
         return x, y, z, f
 

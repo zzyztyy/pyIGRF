@@ -10,4 +10,4 @@ pyIGRF.egg-info/SOURCES.txt
 pyIGRF.egg-info/dependency_links.txt
 pyIGRF.egg-info/requires.txt
 pyIGRF.egg-info/top_level.txt
-pyIGRF/src/igrf13coeffs.txt
+pyIGRF/src/igrf14coeffs.txt

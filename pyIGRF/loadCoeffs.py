@@ -55,11 +55,16 @@ def get_coeffs(date):
         t = date - 2025.0
         tc = 1.0
         #     pointer for last coefficient in pen-ultimate set of MF coefficients...
-        ll = 3060+195
         nmx = 13
         nc = nmx * (nmx + 2)
+        ll = int(0.2 * (2025 - 1995.0))
+        #     19 is the number of SH models that extend to degree 10
+        ll = 120 * 19 + nc * ll
+        # ll = 3255+195	# 
+        # nmx = 13
+        # nc = nmx * (nmx + 2)
     else:
-        t = 0.2 * (date - 1900.0)
+        t = (date - 1900.0)/5
         ll = int(t)
         t = t - ll
         #     SH models before 1995.0 are only to degree 10

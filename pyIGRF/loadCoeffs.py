@@ -33,7 +33,7 @@ def load_coeffs(filename):
         return gh
 
 
-gh = load_coeffs(os.path.dirname(os.path.abspath(__file__)) + '/src/igrf13coeffs.txt')
+gh = load_coeffs(os.path.dirname(os.path.abspath(__file__)) + '/src/igrf14coeffs.txt')
 
 
 def get_coeffs(date):
@@ -47,19 +47,24 @@ def get_coeffs(date):
         print('Date must be in the range 1900.0 <= date <= 2030.0')
         print('On return [], []')
         return [], []
-    elif date >= 2020.0:
-        if date > 2025.0:
+    elif date >= 2025.0:
+        if date > 2030.0:
             # not adapt for the model but can calculate
-            print('This version of the IGRF is intended for use up to 2025.0.')
+            print('This version of the IGRF is intended for use up to 2030.0.')
             print('values for ' + str(date) + ' will be computed but may be of reduced accuracy')
-        t = date - 2020.0
+        t = date - 2025.0
         tc = 1.0
         #     pointer for last coefficient in pen-ultimate set of MF coefficients...
-        ll = 3060+195
         nmx = 13
         nc = nmx * (nmx + 2)
+        ll = int(0.2 * (2025 - 1995.0))
+        #     19 is the number of SH models that extend to degree 10
+        ll = 120 * 19 + nc * ll
+        # ll = 3255+195	# 
+        # nmx = 13
+        # nc = nmx * (nmx + 2)
     else:
-        t = 0.2 * (date - 1900.0)
+        t = (date - 1900.0)/5
         ll = int(t)
         t = t - ll
         #     SH models before 1995.0 are only to degree 10

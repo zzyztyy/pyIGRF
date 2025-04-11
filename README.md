@@ -28,7 +28,7 @@ the response is 7 float number about magnetic filed which is:
 - F: total intensity  
 *unit: degree or nT*
 
-If you want to use IGRF-13 more flexibly, you can use module *calculate*. 
+If you want to use IGRF-14 more flexibly, you can use module *calculate*. 
 There is two function which is closer to Fortran. You can change it for different coordination.
 >```from pyIGRF import calculate```  
 

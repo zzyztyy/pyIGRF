@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
-from pyIGRF.loadCoeffs import get_coeffs, gh
+import math
+from pyIGRF.loadCoeffs import get_coeffs
 
 
-FACT = 180./np.pi
+FACT = 180./math.pi
 
 
 def geodetic2geocentric(theta, alt):
@@ -17,27 +17,30 @@ def geodetic2geocentric(theta, alt):
             d: gccolat minus theta (float, rad)
             r: geocentric radius (float, km)
     """
-    ct = np.cos(theta)
-    st = np.sin(theta)
+    ct = math.cos(theta)
+    st = math.sin(theta)
     a2 = 40680631.6
     b2 = 40408296.0
     one = a2 * st * st
     two = b2 * ct * ct
     three = one + two
-    rho = np.sqrt(three)
-    r = np.sqrt(alt * (alt + 2.0 * rho) + (a2 * one + b2 * two) / three)
+    rho = math.sqrt(three)
+    r = math.sqrt(alt * (alt + 2.0 * rho) + (a2 * one + b2 * two) / three)
     cd = (alt + rho) / r
     sd = (a2 - b2) / rho * ct * st / r
     one = ct
     ct = ct * cd - st * sd
     st = st * cd + one * sd
-    gccolat = np.arctan2(st, ct)
-    d = np.arctan2(sd, cd)
+    gccolat = math.atan2(st, ct)
+    d = math.atan2(sd, cd)
     return gccolat, d, r
 
 
 def igrf12syn(date, itype, alt, lat, elong):
     """
+     This is old description for 12th verison.
+     The code has been UpDate to 14 version:
+
      This is a synthesis routine for the 12th generation IGRF as agreed
      in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
      2020.0 inclusive. Values for dates from 1945.0 to 2010.0 inclusive are
@@ -78,10 +81,10 @@ def igrf12syn(date, itype, alt, lat, elong):
     p, q, cl, sl = [0.] * 105, [0.] * 105, [0.] * 13, [0.] * 13
     x, y, z = 0., 0., 0.
 
-    if date < 1900.0 or date > 2025.0:
+    if date < 1900.0 or date > 2035.0:
         f = 1.0
         print('This subroutine will not work with a date of ' + str(date))
-        print('Date must be in the range 1900.0 <= date <= 2025.0')
+        print('Date must be in the range 1900.0 <= date <= 2035.0')
         print('On return f = 1.0, x = y = z = 0')
         return x, y, z, f
 
@@ -93,12 +96,12 @@ def igrf12syn(date, itype, alt, lat, elong):
     r = alt
 
     one = colat / FACT
-    ct = np.cos(one)
-    st = np.sin(one)
+    ct = math.cos(one)
+    st = math.sin(one)
 
     one = elong / FACT
-    cl[0] = np.cos(one)
-    sl[0] = np.sin(one)
+    cl[0] = math.cos(one)
+    sl[0] = math.sin(one)
 
     cd = 1.0
     sd = 0.0
@@ -108,9 +111,9 @@ def igrf12syn(date, itype, alt, lat, elong):
     n = 0
 
     if itype != 2:
-        gclat, gclon, r = geodetic2geocentric(np.arctan2(st, ct), alt)
-        ct, st = np.cos(gclat), np.sin(gclat)
-        cd, sd = np.cos(gclon), np.sin(gclon)
+        gclat, gclon, r = geodetic2geocentric(math.atan2(st, ct), alt)
+        ct, st = math.cos(gclat), math.sin(gclat)
+        cd, sd = math.cos(gclon), math.sin(gclon)
     ratio = 6371.2 / r
     rr = ratio * ratio
 
@@ -132,8 +135,8 @@ def igrf12syn(date, itype, alt, lat, elong):
         fm = m
         if m != n:
             gmm = m * m
-            one = np.sqrt(fn * fn - gmm)
-            two = np.sqrt(gn * gn - gmm) / one
+            one = math.sqrt(fn * fn - gmm)
+            two = math.sqrt(gn * gn - gmm) / one
             three = (fn + gn) / one
             i = k - n
             j = i - n + 1
@@ -141,7 +144,7 @@ def igrf12syn(date, itype, alt, lat, elong):
             q[k - 1] = three * (ct * q[i - 1] - st * p[i - 1]) - two * q[j - 1]
         else:
             if k != 3:
-                one = np.sqrt(1.0 - 0.5 / fm)
+                one = math.sqrt(1.0 - 0.5 / fm)
                 j = k - n - 1
                 p[k-1] = one * st * p[j-1]
                 q[k-1] = one * (st * q[j-1] + ct * p[j-1])
@@ -169,5 +172,5 @@ def igrf12syn(date, itype, alt, lat, elong):
     one = x
     x = x * cd + z * sd
     z = z * cd - one * sd
-    f = np.sqrt(x * x + y * y + z * z)
+    f = math.sqrt(x * x + y * y + z * z)
     return x, y, z, f

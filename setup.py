@@ -7,10 +7,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="pyIGRF",
-    version="0.3.3",
+    version="1.0.0",
     author="zzyztyy",
     author_email="2375672032@qq.com",
-    description="IGRF-13 Model by Python",
+    description="IGRF-14 Model by Python",
     long_description=open("README.md").read(),
     license="MIT",
     url="https://github.com/zzyztyy/pyIGRF",

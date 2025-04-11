@@ -4,7 +4,7 @@
 __author__ = 'zzyztyy'
 
 """
-This is a package of IGRF-12 (International Geomagnetic Reference Field) about python version.
+This is a package of IGRF-14 (International Geomagnetic Reference Field) about python version.
 It don't need any Fortran compiler.
 """
 
